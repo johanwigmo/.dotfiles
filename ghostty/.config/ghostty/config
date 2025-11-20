@@ -1,0 +1,5 @@
+theme = catppuccin-mocha.conf
+
+background-opacity = 0.9
+
+font-family = "SF Mono"

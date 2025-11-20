@@ -1,0 +1,160 @@
+after-login-command = []
+
+after-startup-command = [
+    # JankyBorders has a built-in detection of already running process,
+    # so it won't be run twice on AeroSpace restart
+    'exec-and-forget borders active_color=0xff76ff7a inactive_color=0xff494d64 width=5.0'
+]
+
+start-at-login = true
+
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+accordion-padding = 30
+
+default-root-container-layout = 'tiles'
+
+# Possible values: horizontal|vertical|auto
+default-root-container-orientation = 'auto'
+
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+on-focus-changed = "move-mouse window-lazy-center"
+
+automatically-unhide-macos-hidden-apps = false
+
+# Secondary monitor
+[workspace-to-monitor-force-assignment]
+    Terminal = 'secondary'
+
+# Move app to workspace on startup 
+
+[[on-window-detected]]
+	if.app-id = 'md.obsidian'
+	run = 'move-node-to-workspace Admin'
+
+[[on-window-detected]]
+	if.app-id = 'com.omnigroup.OmniFocus4'
+	run = 'move-node-to-workspace Admin'
+
+[[on-window-detected]]
+	if.app-id = 'com.mitchellh.ghostty'
+	run = 'move-node-to-workspace Terminal'
+
+[[on-window-detected]]
+	if.app-id = 'com.apple.Music'
+	run = 'move-node-to-workspace Music'
+
+[[on-window-detected]]
+	if.app-id = 'com.apple.MobileSMS'
+	run = 'move-node-to-workspace Social'
+
+[[on-window-detected]]
+	if.app-id = 'com.tinyspeck.slackmacgap'
+	run = 'move-node-to-workspace Social'
+
+[[on-window-detected]]
+	if.app-id = 'com.microsoft.teams2'
+	run = 'move-node-to-workspace Social'
+
+[[on-window-detected]]
+	if.app-id = 'com.facebook.archon'
+	run = 'move-node-to-workspace Social'
+
+[[on-window-detected]]
+	if.app-id = 'com.apple.Safari'
+	run = 'move-node-to-workspace Browser'
+
+[[on-window-detected]]
+	if.app-id = 'com.google.android.studio'
+	run = 'move-node-to-workspace Android'
+
+[[on-window-detected]]
+	if.app-id = 'com.apple.dt.Xcode'
+	run = 'move-node-to-workspace Xcode'
+
+[[on-window-detected]]
+	if.app-id = 'com.apple.iphonesimulator'
+	run = 'move-node-to-workspace Xcode'
+
+[key-mapping]
+    preset = 'qwerty'
+
+[gaps]
+    inner.horizontal = 20
+    inner.vertical =   20
+    outer.left =       10
+    outer.bottom =     10
+    outer.top =        10
+    outer.right =      10
+
+[mode.main.binding]
+
+    # See: https://nikitabobko.github.io/AeroSpace/commands#exec-and-forget
+    # You can uncomment the following lines to open up terminal with alt + enter shortcut
+    # (like in i3)
+    # alt-enter = '''exec-and-forget osascript -e '
+    # tell application "Terminal"
+    #     do script
+    #     activate
+    # end tell'
+    # '''
+
+    alt-slash = 'layout tiles horizontal vertical'
+    alt-comma = 'layout accordion horizontal vertical'
+
+    shift-ctrl-alt-h = 'focus left'
+    shift-ctrl-alt-j = 'focus down'
+    shift-ctrl-alt-k = 'focus up'
+    shift-ctrl-alt-l = 'focus right'
+
+    alt-shift-h = 'move left'
+    alt-shift-j = 'move down'
+    alt-shift-k = 'move up'
+    alt-shift-l = 'move right'
+
+	alt-ctrl-f = 'fullscreen'
+
+    shift-alt-ctrl-minus = 'resize smart -100'
+    shift-alt-ctrl-equal = 'resize smart +100'
+
+    # Set Workspace	
+    shift-ctrl-alt-q = 'workspace Extra1'
+    shift-ctrl-alt-w = 'workspace Extra2'
+    shift-ctrl-alt-e = 'workspace Default'
+    shift-ctrl-alt-r = 'workspace Admin'
+    shift-ctrl-alt-t = 'workspace Terminal'
+    shift-ctrl-alt-a = 'workspace Music'
+    shift-ctrl-alt-s = 'workspace Social'
+    shift-ctrl-alt-d = 'workspace Browser'
+    shift-ctrl-alt-f = 'workspace Android'
+    shift-ctrl-alt-g = 'workspace Xcode'
+
+    # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
+    alt-shift-q = 'move-node-to-workspace Extra1'
+    alt-shift-w = 'move-node-to-workspace Extra2'
+    alt-shift-e = 'move-node-to-workspace Default'
+    alt-shift-r = 'move-node-to-workspace Admin'
+    alt-shift-t = 'move-node-to-workspace Terminal'
+    alt-shift-a = 'move-node-to-workspace Music'
+    alt-shift-s = 'move-node-to-workspace Social'
+	alt-shift-d = 'move-node-to-workspace Browser'
+    alt-shift-f = 'move-node-to-workspace Android'
+    alt-shift-g = 'move-node-to-workspace Xcode'
+
+    alt-shift-semicolon = 'mode service'
+
+[mode.service.binding]
+    esc = [
+        'reload-config', 
+        'mode main', 
+        'exec-and-forget borders active_color=0xff76ff7a inactive_color=0xff494d64 width=5.0'
+    ]
+    r = ['flatten-workspace-tree', 'mode main'] # reset layout
+    f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
+    backspace = ['close-all-windows-but-current', 'mode main']
+
+    shift-ctrl-alt-h = ['join-with left', 'mode main']
+    shift-ctrl-alt-j = ['join-with down', 'mode main']
+    shift-ctrl-alt-k = ['join-with up', 'mode main']
+    shift-ctrl-alt-l = ['join-with right', 'mode main']
