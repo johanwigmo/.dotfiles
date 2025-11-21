@@ -86,14 +86,31 @@ fi
 
 echo "Installing TPM (Tmux Plugin Manager)..."
 if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then 
-	git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugin/tpm
+	git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
 
 ##################
 # macOS Defaults #
 ##################
 
-echo "macOS defaults section currently empty. Add when ready."
+echo "Configuring macOS defaults"
+
+# Appearance - Dark mode
+defaults write NSGlobalDomain AppleInterfaceStyle -string "Dark"
+
+# Accessibility - Reduce motion
+defaults write com.apple.Accessibility ReduceMotionEnabled -int 1
+
+# Dock - Auto-hide
+defaults write com.apple.dock autohide -bool true
+
+# Keyboard - Enable full keyboard navigation (Tab through all controls)
+defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
+
+# Apply Dock changes
+killall Dock
+
+echo "macOS defaults applied!"
 
 ############
 # Finalize #
