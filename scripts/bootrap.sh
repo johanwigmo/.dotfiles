@@ -38,6 +38,10 @@ fi
 # Brew bundle (install apps + CLI tools) #
 ##########################################
 
+echo "Tapping required repositories..."
+brew tap FelixKratz/formulae
+brew tap nikitabobko/tap
+
 echo "Running Brew bundle..."
 brew bundle --file="$HOME/.dotfiles/Brewfile"
 

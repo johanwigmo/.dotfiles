@@ -1,10 +1,3 @@
-########
-# Taps #
-########
-
-tap "FelixKratz/formulae"
-tap "nikitabobko/tap"
-
 ##########################
 # Core Development Tools #
 ##########################
