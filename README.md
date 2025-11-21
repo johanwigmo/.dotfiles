@@ -1,6 +1,6 @@
 # Dotfiles
 
-my macOS environment setup.
+My macOS environment setup.
 
 ## Quick Start
 
