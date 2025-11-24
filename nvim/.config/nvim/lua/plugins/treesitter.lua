@@ -31,11 +31,11 @@ return {
             filetype = "todotxt"
         }
 
+        local todo_root = vim.fn.expand("$TODO_ROOT")
         vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
             pattern = {
-                "/Users/johanwigmo/Library/Mobile Documents/com~apple~CloudDocs/Todo/*.txt",
-                "/Users/johanwigmo/Library/Mobile Documents/com~apple~CloudDocs/Todo/**/*.txt",
-                "todo.txt"
+                todo_root .. "/*.txt",
+                todo_root .. "/**/*.txt"
             },
             command = "set filetype=todotxt"
         })

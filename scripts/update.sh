@@ -22,3 +22,7 @@ echo "Updating TPM plugins..."
 ~/.tmux/plugins/tpm/bin/update_plugins all
 
 echo "Update complete!"
+
+echo ""
+echo "Note: If dotfiles.env changed, update it with: "
+echo "    cp ~/.dotfiles/config/dotfiles.env ~/.config/dotfiles.env"
