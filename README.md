@@ -32,6 +32,7 @@ The script is idempotent and safe to re-run.
 
 The update sript will:
 - Pull latest dotfiles from git
+- Re-stows configurations
 - Update Homebrew packages
 - Update Tmux plugins
 
