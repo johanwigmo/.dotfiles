@@ -75,6 +75,16 @@ return {
     config = function(_, opts)
         require("obsidian").setup(opts)
 
+        -- Disable swap files for Obsidian vault
+        vim.api.nvim_create_autocmd("BufEnter", {
+            pattern = vim.fn.expand(os.getenv("NOTES_ROOT")) .. "/*",
+            callback = function()
+                vim.opt_local.swapfile = false
+                vim.opt_local.backup= false
+                vim.opt_local.writebackup = false
+            end,
+        })
+
         vim.keymap.set("n", "<leader>on", ":ObsidianNew ", { desc = "New note" })
         vim.keymap.set("n", "<leader>ot", ":ObsidianToday<CR>", { desc = "Today's note" })
         vim.keymap.set("n", "<leader>oy", ":ObsidianYesterday<CR>", { desc = "Yesterday's note" })
