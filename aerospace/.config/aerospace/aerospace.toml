@@ -34,7 +34,7 @@ automatically-unhide-macos-hidden-apps = false
 	run = 'move-node-to-workspace Admin'
 
 [[on-window-detected]]
-	if.app-id = 'com.omnigroup.OmniFocus4'
+	if.app-id = 'com.fastmail.mac.Fastmail'
 	run = 'move-node-to-workspace Admin'
 
 [[on-window-detected]]
@@ -55,10 +55,6 @@ automatically-unhide-macos-hidden-apps = false
 
 [[on-window-detected]]
 	if.app-id = 'com.microsoft.teams2'
-	run = 'move-node-to-workspace Social'
-
-[[on-window-detected]]
-	if.app-id = 'com.facebook.archon'
 	run = 'move-node-to-workspace Social'
 
 [[on-window-detected]]
