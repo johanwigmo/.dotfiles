@@ -38,7 +38,7 @@ The update sript will:
 
 ## Manual Configuration
 
-Some setup require manual configuration after bootstrap:
+Some setup require manual configuration after bootstrap. These are some of the things I need to adjust (not all, because I never remember what I have changed):
 
 ### Xcode 
 
