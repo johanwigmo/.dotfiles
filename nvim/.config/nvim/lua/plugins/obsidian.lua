@@ -97,8 +97,23 @@ return {
 
         -- Global Obsidian keymaps
         vim.keymap.set("n", "<leader>on", ":Obsidian new ", { desc = "New note" })
-        vim.keymap.set("n", "<leader>ot", ":Obsidian today<CR>", { desc = "Today's note" })
-        vim.keymap.set("n", "<leader>oy", ":Obsidian yesterday<CR>", { desc = "Yesterday's note" })
+        --
+        -- Won't do custom template thingy, but should already be created
+        vim.keymap.set("n", "<leader>oy", ":Obsidian yesterday<CR>", { desc = "Yesterday's note" }) 
+
+        -- Custom daily note (adjust template when created from desktop)
+        vim.keymap.set("n", "<leader>ot", function()
+            vim.cmd("Obsidian today")
+
+            -- wait for template
+            vim.defer_fn(function()
+                local first_line = vim.api.nvim_buf_get_lines(0, 0, 1, false)[1]
+                if first_line and first_line:match("^#") then
+                    local date = os.date("%Y-%m-%d")
+                    vim.api.nvim_buf_set_lines(0, 0, 1, false, {"# Daily Notes - " .. date})
+                end
+            end, 100)
+        end, { desc = "Today's note" })
 
         -- Custoom weekly note creation
         vim.keymap.set("n", "<leader>ow", function()
@@ -113,6 +128,11 @@ return {
 
             if vim.fn.line("$") == 1 and vim.fn.getline(1) == "" then 
                 vim.cmd("Obsidian template " .. template)
+
+                vim.defer_fn(function()
+                    local week  = os.date("W%V")
+                    vim.api.nvim_buf_set_lines(0, 0, 1, false, {"# Weekly Review " .. week})
+                end, 100)
             end
         end, { desc = "Weekly note" })
 
@@ -129,6 +149,11 @@ return {
 
             if vim.fn.line("$") == 1 and vim.fn.getline(1) == "" then 
                 vim.cmd("Obsidian template " .. template)
+
+                vim.defer_fn(function()
+                    local month  = os.date("%B %Y")
+                    vim.api.nvim_buf_set_lines(0, 0, 1, false, {"# Monthly Review - " .. month})
+                end, 100)
             end
         end, { desc = "Monthly note" })
 
