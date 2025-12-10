@@ -15,8 +15,10 @@ stow -R zed
 stow -R ghostty
 stow -R aerospace
 
-echo "Updating Homebrew..."
-brew update && brew upgrade && brew cleanup
+echo "Updating Homebrew and packages from Brewfile..."
+brew update 
+brew bundle --file="$HOME/.dotfiles/Brewfile"
+brew cleanup
 
 echo "Updating TPM plugins..."
 ~/.tmux/plugins/tpm/bin/update_plugins all
