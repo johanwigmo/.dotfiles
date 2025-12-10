@@ -58,6 +58,10 @@ automatically-unhide-macos-hidden-apps = false
 	run = 'move-node-to-workspace Social'
 
 [[on-window-detected]]
+	if.app-id = 'com.hnc.Discord'
+	run = 'move-node-to-workspace Social'
+
+[[on-window-detected]]
 	if.app-id = 'com.apple.Safari'
 	run = 'move-node-to-workspace Browser'
 
