@@ -95,3 +95,6 @@ cask "obsidian"
 cask "nikitabobko/tap/aerospace"
 cask "fastmail"
 cask "maestral"
+
+# Social
+cask discord
