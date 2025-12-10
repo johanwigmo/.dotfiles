@@ -97,4 +97,4 @@ cask "fastmail"
 cask "maestral"
 
 # Social
-cask discord
+cask "discord"
