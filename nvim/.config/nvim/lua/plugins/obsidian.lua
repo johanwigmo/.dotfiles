@@ -35,6 +35,8 @@ return {
 
             prefer_wiki_links = true,
             ui = { enable = false },
+            statusline = { enabled = false }, 
+            footer = { enabled = false }, 
 
             legacy_commands = false,
 
