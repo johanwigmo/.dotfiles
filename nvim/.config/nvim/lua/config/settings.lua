@@ -28,7 +28,6 @@ vim.api.nvim_create_autocmd("FileChangedShellPost", {
 -- === Autosave only in specific directories ===
 local autosave_dirs = {
     vim.env.NOTES_ROOT,
-    vim.env.TODO_ROOT,
 }
 
 vim.api.nvim_create_autocmd({"InsertLeave", "FocusLost"}, {

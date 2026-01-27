@@ -1,8 +1,10 @@
-local function get_env_path(env_var)
-    local p = os.getenv(env_var)
-    if not p or p == "" then return nil end
-    return p
-end
+local paths = {
+    subdir = "00 Meta/01 Inbox",
+    templates = "00 Meta/03 Templates",
+    daily = "00 Meta/02 Journal/02.01 Daily",
+    weekly = "00 Meta/02 Journal/02.02 Weekly",
+    monthly = "00 Meta/02 Journal/02.03 Monthly"
+}
 
 return {
     "obsidian-nvim/obsidian.nvim", 
@@ -29,27 +31,21 @@ return {
                 }
             },
 
-            frontmatter = {
-                enabled = false
-            },            
-
+            frontmatter = { enabled = false }, 
             prefer_wiki_links = true,
             ui = { enable = false },
             statusline = { enabled = false }, 
             footer = { enabled = false }, 
-
             legacy_commands = false,
 
-            notes_subdir = get_env_path("NOTES_SUBDIR"),
-
             templates = {
-                folder = get_env_path("NOTES_TEMPLATES"),
+                folder = paths.templates,
                 date_format = "%Y-%m-%d", 
                 time_format = "%H:%M",
             },
 
             daily_notes = {
-                folder = get_env_path("NOTES_DAILY"),
+                folder = paths.daily,
                 date_format = "%Y/%m %b/%Y-%m-%d", 
                 template = "DailyNote.md"
             },
@@ -62,9 +58,7 @@ return {
     end,
 
     config = function(_, opts)
-        if next(opts) == nil then 
-            return
-        end
+        if next(opts) == nil then return end
 
         local obsidian = require("obsidian")
         obsidian.setup(opts)
@@ -81,21 +75,6 @@ return {
                 end,
             })
         end
-
-        -- Markdown-specific keymaps
-        vim.api.nvim_create_autocmd("FileType", {
-            pattern = "markdown", 
-            callback = function()
-
-                vim.keymap.set("n", "gf", function()
-                    if obsidian.util.cursor_on_markdown_link() then 
-                        return "<cmd>Obsidian follow<CR>"
-                    else 
-                        return "gf"
-                    end
-                end, { buffer = true, expr = true, noremap = false})
-            end,
-        })
 
         -- Global Obsidian keymaps
         vim.keymap.set("n", "<leader>on", ":Obsidian new ", { desc = "New note" })
@@ -120,16 +99,14 @@ return {
         -- Custoom weekly note creation
         vim.keymap.set("n", "<leader>ow", function()
             local vault_root = vim.fn.expand(vim.env.NOTES_ROOT)
-            local weekly_folder = vim.env.NOTES_WEEKLY
-            local template = "WeeklyReview.md"
             local date = os.date("%Y/%Y-W%V")
-            local filename = string.format("%s/%s/%s.md", vault_root, weekly_folder, date)
+            local filename = string.format("%s/%s/%s.md", vault_root, paths.weekly, date)
 
             vim.fn.mkdir(vim.fs.dirname(filename), "p")
             vim.cmd("edit " .. vim.fn.fnameescape(filename))
 
             if vim.fn.line("$") == 1 and vim.fn.getline(1) == "" then 
-                vim.cmd("Obsidian template " .. template)
+                vim.cmd("Obsidian template WeeklyReview.md")
 
                 vim.defer_fn(function()
                     local week  = os.date("W%V")
@@ -141,16 +118,14 @@ return {
         -- Custom month note creation
         vim.keymap.set("n", "<leader>om", function()
             local vault_root = vim.fn.expand(vim.env.NOTES_ROOT)
-            local monthly_folder = vim.env.NOTES_MONTHLY
-            local template = "MonthlyReview.md"
             local date = os.date("%Y/%Y-%m")
-            local filename = string.format("%s/%s/%s.md", vault_root, weekly_folder, date)
+            local filename = string.format("%s/%s/%s.md", vault_root, paths.monthly, date)
 
             vim.fn.mkdir(vim.fs.dirname(filename), "p")
             vim.cmd("edit " .. vim.fn.fnameescape(filename))
 
             if vim.fn.line("$") == 1 and vim.fn.getline(1) == "" then 
-                vim.cmd("Obsidian template " .. template)
+                vim.cmd("Obsidian template MonthlyReview.md")
 
                 vim.defer_fn(function()
                     local month  = os.date("%B %Y")
