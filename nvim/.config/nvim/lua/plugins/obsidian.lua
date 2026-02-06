@@ -96,7 +96,7 @@ return {
             end, 100)
         end, { desc = "Today's note" })
 
-        -- Custoom weekly note creation
+        -- Custom weekly note creation
         vim.keymap.set("n", "<leader>ow", function()
             local vault_root = vim.fn.expand(vim.env.NOTES_ROOT)
             local date = os.date("%Y/%Y-W%V")
