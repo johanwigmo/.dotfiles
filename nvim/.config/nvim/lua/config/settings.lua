@@ -27,15 +27,15 @@ vim.api.nvim_create_autocmd("FileChangedShellPost", {
 
 -- === Autosave only in specific directories ===
 local autosave_dirs = {
-    vim.env.NOTES_ROOT,
+    vim.env.NOTES,
 }
 
 vim.api.nvim_create_autocmd({"InsertLeave", "FocusLost"}, {
     callback = function()
-        local cwd = vim.fn.getcwd()
+        local bufpath = vim.api.nvim_buf_get_name(0)
 
         for _, dir in ipairs(autosave_dirs) do
-            if vim.startswith(cwd, dir) then
+            if vim.startswith(bufpath, dir) then
                 vim.cmd("silent! wall")
                 return
             end
