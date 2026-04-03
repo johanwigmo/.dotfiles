@@ -159,7 +159,7 @@ local function new_note()
             local name, typ = vim.loop.fs_scandir_next(handle)
             if not name then break end
             if typ == "file" and name:match("%.md$") then
-                table.insert(templates, name:gsub("%.md$", ""))
+                table.insert(templates, (name:gsub("%.md$", "")))
             end
         end
     end
