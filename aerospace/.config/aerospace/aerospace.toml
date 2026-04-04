@@ -30,10 +30,6 @@ automatically-unhide-macos-hidden-apps = false
 # Move app to workspace on startup 
 
 [[on-window-detected]]
-	if.app-id = 'md.obsidian'
-	run = 'move-node-to-workspace Admin'
-
-[[on-window-detected]]
 	if.app-id = 'com.fastmail.mac.Fastmail'
 	run = 'move-node-to-workspace Admin'
 
