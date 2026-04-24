@@ -14,7 +14,15 @@ stow -R nvim
 stow -R zed
 stow -R ghostty
 stow -R aerospace
-stow -R claude
+
+echo "Linking Claude Code config..."
+ln -sf "$HOME/.dotfiles/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+ln -sf "$HOME/.dotfiles/claude/settings.json" "$HOME/.claude/settings.json"
+mkdir -p "$HOME/.claude/skills" "$HOME/.claude/agents" "$HOME/.claude/hooks"
+ln -sf "$HOME/.dotfiles/claude/skills/add-to-inbox" "$HOME/.claude/skills/add-to-inbox"
+ln -sf "$HOME/.dotfiles/claude/skills/git-commit" "$HOME/.claude/skills/git-commit"
+ln -sf "$HOME/.dotfiles/claude/agents/explorer.md" "$HOME/.claude/agents/explorer.md"
+ln -sf "$HOME/.dotfiles/claude/hooks/notify-done.sh" "$HOME/.claude/hooks/notify-done.sh"
 
 echo "Setting executable permissions for Claude Code hooks..."
 find "$HOME/.claude/hooks" -type f -name "*.sh" -exec chmod +x {} \;
