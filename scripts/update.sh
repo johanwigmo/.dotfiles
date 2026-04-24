@@ -14,6 +14,10 @@ stow -R nvim
 stow -R zed
 stow -R ghostty
 stow -R aerospace
+stow -R claude
+
+echo "Setting executable permissions for Claude Code hooks..."
+find "$HOME/.claude/hooks" -type f -name "*.sh" -exec chmod +x {} \;
 
 echo "Updating Homebrew and packages from Brewfile..."
 brew update 

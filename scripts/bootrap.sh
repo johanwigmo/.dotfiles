@@ -4,7 +4,7 @@ set -euo pipefail
 DOTFILES_DIR="$HOME/.dotfiles"
 if [[ "$PWD" != "$DOTFILES_DIR" ]]; then 
 	echo "Error: Please run this script from $DOTFILES_DIR"
-	exit !
+	exit 1
 fi
 
 echo "===== Starting bootstrap ====="
@@ -67,8 +67,16 @@ stow nvim
 stow zed
 stow ghostty
 stow aerospace
+stow claude
 
 echo "Dotfiles stowed"
+
+###############
+# Claude Code #
+###############
+
+echo "Setting executable permissions for Claude Code hooks..."
+chmod +x "$HOME/.claude/hooks/notify-done.sh"
 
 #########################
 # Environment variables #
