@@ -16,5 +16,5 @@ Solo iOS developer that builds indie apps while doing contracting mobile develop
 - Specific editor: Xcode (and Android Studio)
 
 ## Notes system
-Vault root: ~/Documents/notes
-Todo root: ~/Documents/notes/todo
+- Vault root: ~/Documents/notes
+- Todo root: ~/Documents/notes/todo
