@@ -12,8 +12,13 @@
   "hooks": {
     "Stop": [
       {
-        "type": "command",
-        "command": "~/.claude/hooks/notify-done.sh"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notify-done.sh"
+          }
+        ]
       }
     ]
   }
