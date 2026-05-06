@@ -372,11 +372,11 @@ function M.setup()
     -- Commands
     vim.api.nvim_create_user_command("Today",     function() open_daily(0) end,  {})
     vim.api.nvim_create_user_command("Yesterday",  function() open_daily(-1) end, {})
+    vim.api.nvim_create_user_command("Tomorrow",  function() open_daily(1) end, {})
     vim.api.nvim_create_user_command("Weekly",     open_weekly,  {})
     vim.api.nvim_create_user_command("Monthly",    open_monthly, {})
     vim.api.nvim_create_user_command("NewNote",    new_note,     {})
 
-    vim.api.nvim_create_user_command("Focus",   function() open_todo_file("focus") end,   {})
     vim.api.nvim_create_user_command("Inbox",   function() open_todo_file("inbox") end,   {})
     vim.api.nvim_create_user_command("Waiting", function() open_todo_file("waiting") end, {})
 
@@ -387,7 +387,6 @@ function M.setup()
     vim.keymap.set("n", "<leader>om", open_monthly, { desc = "Monthly note" })
     vim.keymap.set("n", "<leader>on", new_note,     { desc = "New note from template" })
 
-    vim.keymap.set("n", "<leader>of", function() open_todo_file("focus") end,   { desc = "Focus" })
     vim.keymap.set("n", "<leader>oi", function() open_todo_file("inbox") end,   { desc = "Inbox" })
     vim.keymap.set("n", "<leader>oa", function() open_todo_file("waiting") end, { desc = "Waiting" })
 
