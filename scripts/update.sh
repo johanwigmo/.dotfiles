@@ -30,6 +30,7 @@ find "$HOME/.claude/hooks" -type f -name "*.sh" -exec chmod +x {} \;
 echo "Updating Homebrew and packages from Brewfile..."
 brew update 
 brew bundle --file="$HOME/.dotfiles/Brewfile"
+brew upgrade --cask
 brew cleanup
 
 echo "Updating TPM plugins..."
