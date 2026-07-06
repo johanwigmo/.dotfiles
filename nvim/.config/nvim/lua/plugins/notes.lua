@@ -356,6 +356,40 @@ local function open_todo_file(name)
     vim.cmd("edit " .. vim.fn.fnameescape(path))
 end
 
+local function new_project()
+    if not ensure_vault() then return end
+    if todo == "" then
+        vim.notify("notes: $TODO is not set", vim.log.levels.ERROR)
+        return
+    end
+
+    local name = vim.fn.input("Project name: ")
+    if not name or name == "" then
+        vim.notify("notes: cancelled", vim.log.levels.INFO)
+        return
+    end
+
+    local slug = name:lower():gsub("%s+", "-"):gsub("[^a-z0-9%-]", "")
+    local filepath = todo .. "projects/project-" .. slug .. ".md"
+
+    if vim.fn.filereadable(filepath) == 1 then
+        vim.notify("notes: project already exists, opening", vim.log.levels.WARN)
+        vim.cmd("edit " .. vim.fn.fnameescape(filepath))
+        return
+    end
+
+    local tmpl = read_template("project")
+    if not tmpl then
+        vim.notify("notes: project template not found", vim.log.levels.ERROR)
+        return
+    end
+
+    local content = fill_template(tmpl):gsub("{Project Name}", name)
+    vim.fn.mkdir(vim.fs.dirname(filepath), "p")
+    vim.cmd("edit " .. vim.fn.fnameescape(filepath))
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(content, "\n", { plain = true }))
+end
+
 -------------------------------------------------------------------------------
 -- Setup
 -------------------------------------------------------------------------------
@@ -377,8 +411,9 @@ function M.setup()
     vim.api.nvim_create_user_command("Monthly",    open_monthly, {})
     vim.api.nvim_create_user_command("NewNote",    new_note,     {})
 
-    vim.api.nvim_create_user_command("Inbox",   function() open_todo_file("inbox") end,   {})
-    vim.api.nvim_create_user_command("Waiting", function() open_todo_file("waiting") end, {})
+    vim.api.nvim_create_user_command("Inbox",      function() open_todo_file("inbox") end,   {})
+    vim.api.nvim_create_user_command("Waiting",    function() open_todo_file("waiting") end, {})
+    vim.api.nvim_create_user_command("NewProject", new_project, {})
 
     -- Keymaps (leader-o namespace, matching your old setup)
     vim.keymap.set("n", "<leader>ot", function() open_daily(0) end,  { desc = "Today's note" })
@@ -389,6 +424,7 @@ function M.setup()
 
     vim.keymap.set("n", "<leader>oi", function() open_todo_file("inbox") end,   { desc = "Inbox" })
     vim.keymap.set("n", "<leader>oa", function() open_todo_file("waiting") end, { desc = "Waiting" })
+    vim.keymap.set("n", "<leader>op", new_project, { desc = "New project" })
 
     -- Disable swap/backup inside the vault
     if vault ~= "" and vim.fn.isdirectory(vault) == 1 then
