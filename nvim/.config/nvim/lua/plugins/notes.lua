@@ -314,7 +314,7 @@ local function new_note()
 
                 -- Resolve destination folder
                 if dest then
-                    dest = dest:gsub("{year}", os.date("%%Y", date))
+                    dest = dest:gsub("{year}", os.date("%Y", date))
                                :gsub("{month}", month_slug(date))
                 else
                     dest = "_inbox/"
