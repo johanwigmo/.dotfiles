@@ -25,5 +25,6 @@
   "enabledPlugins": {
     "swift-lsp@claude-plugins-official": true
   },
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "agentPushNotifEnabled": true
 }
