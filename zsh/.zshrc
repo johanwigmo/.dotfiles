@@ -34,6 +34,7 @@ alias la="eza -lha --icons"
 alias tree="eza --tree"
 
 # Zoxide (better cd)
+unalias zi 2>/dev/null # zinit also defines "zi"; zoxide's version should win
 eval "$(zoxide init zsh)"
 alias cd="z"
 
