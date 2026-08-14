@@ -1,3 +1,9 @@
+#########
+# Taps  #
+#########
+
+tap "anomalyco/tap"
+
 ##########################
 # Core Development Tools #
 ##########################
@@ -8,6 +14,7 @@ brew "stow"
 brew "node"
 brew "nvm"
 brew "tree-sitter-cli"
+brew "mas"
 
 ####################
 # Terminal & Shell #
@@ -80,6 +87,7 @@ brew "borders"
 cask "claude"
 cask "claude-code"
 cask "chatgpt"
+brew "anomalyco/tap/opencode"
 
 # Development
 cask "ghostty"
@@ -91,8 +99,7 @@ cask "postman"
 cask "google-chrome"
 
 # Productivity
-cask "obsidian"
-cask "nikitabobko/tap/aerospace"
+mas "Magnet", id: 441258766
 cask "fastmail"
 cask "maestral"
 

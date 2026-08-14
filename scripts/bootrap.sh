@@ -40,7 +40,6 @@ fi
 
 echo "Tapping required repositories..."
 brew tap FelixKratz/formulae
-brew tap nikitabobko/tap
 
 echo "Running Brew bundle..."
 brew bundle --file="$HOME/.dotfiles/Brewfile"
@@ -66,7 +65,10 @@ stow git
 stow nvim
 stow zed
 stow ghostty
-stow aerospace
+stow borders
+
+echo "Starting borders as a login service..."
+brew services start felixkratz/formulae/borders
 
 echo "Dotfiles stowed"
 

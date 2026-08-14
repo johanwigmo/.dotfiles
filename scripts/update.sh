@@ -13,7 +13,7 @@ stow -R git
 stow -R nvim
 stow -R zed
 stow -R ghostty
-stow -R aerospace
+stow -R borders
 
 echo "Linking Claude Code config..."
 ln -sf "$HOME/.dotfiles/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
@@ -28,10 +28,13 @@ echo "Setting executable permissions for Claude Code hooks..."
 find "$HOME/.claude/hooks" -type f -name "*.sh" -exec chmod +x {} \;
 
 echo "Updating Homebrew and packages from Brewfile..."
-brew update 
+brew update
 brew bundle --file="$HOME/.dotfiles/Brewfile"
 brew upgrade --cask
 brew cleanup
+
+echo "Checking for packages no longer in the Brewfile (not removed automatically)..."
+brew bundle cleanup --file="$HOME/.dotfiles/Brewfile"
 
 echo "Updating TPM plugins..."
 ~/.tmux/plugins/tpm/bin/update_plugins all

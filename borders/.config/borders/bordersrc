@@ -1,0 +1,2 @@
+#!/bin/sh
+borders active_color=0xff76ff7a inactive_color=0xff494d64 width=5.0
