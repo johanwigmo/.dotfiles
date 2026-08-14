@@ -66,6 +66,7 @@ brew "tldr"
 
 brew "watchman"
 cask "android-platform-tools"
+mas "Xcode", id: 497799835
 
 ###########
 # Web Dev #
@@ -99,6 +100,8 @@ cask "postman"
 cask "google-chrome"
 
 # Productivity
+mas "Toggl Track", id: 1291898086
+mas "Vimlike", id: 1584519802
 mas "Magnet", id: 441258766
 cask "fastmail"
 cask "maestral"

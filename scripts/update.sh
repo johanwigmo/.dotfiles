@@ -33,9 +33,6 @@ brew bundle --file="$HOME/.dotfiles/Brewfile"
 brew upgrade --cask
 brew cleanup
 
-echo "Checking for packages no longer in the Brewfile (not removed automatically)..."
-brew bundle cleanup --file="$HOME/.dotfiles/Brewfile"
-
 echo "Updating TPM plugins..."
 ~/.tmux/plugins/tpm/bin/update_plugins all
 
