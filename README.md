@@ -40,10 +40,9 @@ The update sript will:
 
 Some setup require manual configuration after bootstrap. These are some of the things I need to adjust (not all, because I never remember what I have changed):
 
-### Xcode 
+### Xcode
 
-- **Install Xcode** from App Store
-- After installation: 
+Installed automatically via `mas` in the Brewfile. After installation:
 
 ```bash
 # Point xcode-select to full Xcode
