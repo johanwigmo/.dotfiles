@@ -28,6 +28,10 @@ ln -sf "$HOME/.dotfiles/claude/hooks/notify-done.sh" "$HOME/.claude/hooks/notify
 echo "Setting executable permissions for Claude Code hooks..."
 find "$HOME/.claude/hooks" -type f -name "*.sh" -exec chmod +x {} \;
 
+echo "Linking OpenCode config..."
+mkdir -p "$HOME/.config/opencode"
+ln -sf "$HOME/.dotfiles/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
+
 echo "Updating Homebrew and packages from Brewfile..."
 brew update
 brew bundle --file="$HOME/.dotfiles/Brewfile"

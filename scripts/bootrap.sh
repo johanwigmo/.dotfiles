@@ -89,6 +89,14 @@ ln -sf "$HOME/.dotfiles/claude/hooks/notify-done.sh" "$HOME/.claude/hooks/notify
 echo "Setting executable permissions for Claude Code hooks..."
 chmod +x "$HOME/.claude/hooks/notify-done.sh"
 
+###############
+# OpenCode    #
+###############
+
+echo "Linking OpenCode config..."
+mkdir -p "$HOME/.config/opencode"
+ln -sf "$HOME/.dotfiles/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
+
 #########################
 # Environment variables #
 #########################
