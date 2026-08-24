@@ -9,3 +9,7 @@
 
 zed/.config/zed/prompts/
 
+# Skills are flat SKILL.md files; ignore agent-created junk inside them
+claude/skills/*/*
+!claude/skills/*/SKILL.md
+
