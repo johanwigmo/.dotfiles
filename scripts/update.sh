@@ -8,6 +8,7 @@ git pull
 echo "Re-stowing configurations"
 stow -R zsh
 stow -R starship
+stow -R herdr
 stow -R tmux
 stow -R git
 stow -R nvim

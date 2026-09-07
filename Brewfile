@@ -20,6 +20,7 @@ brew "mas"
 # Terminal & Shell #
 ####################
 
+brew "herdr"
 brew "tmux"
 brew "starship"
 brew "zoxide"

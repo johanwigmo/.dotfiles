@@ -60,6 +60,7 @@ echo "Stowing dotfiles..."
 
 stow zsh
 stow starship
+stow herdr
 stow tmux
 stow git
 stow nvim
