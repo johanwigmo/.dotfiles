@@ -13,3 +13,8 @@ zed/.config/zed/prompts/
 claude/skills/*/*
 !claude/skills/*/SKILL.md
 
+# herdr runtime/session state (not config)
+herdr/.config/herdr/*.log
+herdr/.config/herdr/session.json
+herdr/.config/herdr/.plugins.lock
+
