@@ -85,9 +85,6 @@ brew "borders"
 ############
 
 # AI
-cask "claude"
-cask "claude-code"
-cask "chatgpt"
 brew "anomalyco/tap/opencode"
 
 # Development
@@ -104,7 +101,6 @@ mas "Toggl Track", id: 1291898086
 mas "Vimlike", id: 1584519802
 mas "Magnet", id: 441258766
 cask "fastmail"
-cask "maestral"
 
 # Social
 cask "discord"
