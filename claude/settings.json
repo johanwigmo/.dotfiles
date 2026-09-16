@@ -26,5 +26,6 @@
     "swift-lsp@claude-plugins-official": true
   },
   "tui": "fullscreen",
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "model": "opus"
 }

@@ -73,22 +73,15 @@ brew services start felixkratz/formulae/borders
 
 echo "Dotfiles stowed"
 
-###############
-# Claude Code #
-###############
+##################
+# Claude skills #
+##################
 
-echo "Linking Claude Code config..."
-ln -sfn "$HOME/.dotfiles/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-ln -sfn "$HOME/.dotfiles/claude/settings.json" "$HOME/.claude/settings.json"
-mkdir -p "$HOME/.claude/skills" "$HOME/.claude/agents" "$HOME/.claude/hooks"
+echo "Linking Claude skills (opencode compat)..."
+mkdir -p "$HOME/.claude/skills"
 for skill in add-to-inbox git-commit grill-me handoff; do
 	ln -sfn "$HOME/.dotfiles/claude/skills/$skill" "$HOME/.claude/skills/$skill"
 done
-ln -sfn "$HOME/.dotfiles/claude/agents/explorer.md" "$HOME/.claude/agents/explorer.md"
-ln -sfn "$HOME/.dotfiles/claude/hooks/notify-done.sh" "$HOME/.claude/hooks/notify-done.sh"
-
-echo "Setting executable permissions for Claude Code hooks..."
-chmod +x "$HOME/.claude/hooks/notify-done.sh"
 
 ###############
 # OpenCode    #
@@ -97,6 +90,7 @@ chmod +x "$HOME/.claude/hooks/notify-done.sh"
 echo "Linking OpenCode config..."
 mkdir -p "$HOME/.config/opencode"
 ln -sf "$HOME/.dotfiles/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
+ln -sf "$HOME/.dotfiles/opencode/AGENTS.md" "$HOME/.config/opencode/AGENTS.md"
 
 #########################
 # Environment variables #

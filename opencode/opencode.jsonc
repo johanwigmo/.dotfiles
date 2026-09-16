@@ -8,5 +8,8 @@
       "find:*": "allow",
       "ls:*": "allow"
     }
-  }
+  },
+  "plugin": [
+    "@bergetai/opencode-auth@latest"
+  ]
 }
