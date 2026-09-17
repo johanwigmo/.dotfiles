@@ -1,0 +1,42 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // Primary model is picked per machine in the TUI (remembered locally, not synced).
+  // This machine: berget/zai-org/GLM-5.3-Flash; client machine: OpenAI/Anthropic/Google keys.
+  // Kimi-K3 stays an on-demand pick — quota-heavy, rate-limited past 50%.
+  "small_model": "opencode/nemotron-3.5-lightning-free",
+  "default_agent": "dev",
+  "permission": {
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "skill": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "question": "allow",
+    "todowrite": "allow",
+    "task": "ask",
+    "edit": "ask",
+    "bash": {
+      "*": "ask",
+      "ls": "allow",
+      "ls *": "allow",
+      "find": "allow",
+      "find *": "allow",
+      "rg": "allow",
+      "rg *": "allow",
+      "git status": "allow",
+      "git status *": "allow",
+      "git log": "allow",
+      "git log *": "allow",
+      "git diff": "allow",
+      "git diff *": "allow"
+    },
+    "external_directory": {
+      "~/Documents/notes/**": "allow"
+    }
+  },
+  "plugin": [
+    "@bergetai/opencode-auth@latest"
+  ]
+}

@@ -9,9 +9,8 @@
 
 zed/.config/zed/prompts/
 
-# Skills are flat SKILL.md files; ignore agent-created junk inside them
-claude/skills/*/*
-!claude/skills/*/SKILL.md
+# opencode runtime state (plugins install dependencies locally)
+opencode/.config/opencode/node_modules
 
 # herdr runtime/session state (not config)
 herdr/.config/herdr/*.log

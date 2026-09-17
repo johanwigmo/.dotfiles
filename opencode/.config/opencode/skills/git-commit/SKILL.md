@@ -1,6 +1,6 @@
 ---
 name: git-commit
-description:  Write and run a git commit with a conventional commit message. Use when asked to commit, or when staged changes are ready to be committed. 
+description: Write and run a git commit with a conventional commit message. Use when asked to commit, or when staged changes are ready to be committed.
 ---
 
 ## Steps

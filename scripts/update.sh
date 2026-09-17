@@ -15,17 +15,7 @@ stow -R nvim
 stow -R zed
 stow -R ghostty
 stow -R borders
-
-echo "Linking Claude skills (opencode compat)..."
-mkdir -p "$HOME/.claude/skills"
-for skill in add-to-inbox git-commit grill-me handoff; do
-	ln -sfn "$HOME/.dotfiles/claude/skills/$skill" "$HOME/.claude/skills/$skill"
-done
-
-echo "Linking OpenCode config..."
-mkdir -p "$HOME/.config/opencode"
-ln -sf "$HOME/.dotfiles/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
-ln -sf "$HOME/.dotfiles/opencode/AGENTS.md" "$HOME/.config/opencode/AGENTS.md"
+stow -R opencode
 
 echo "Updating Homebrew and packages from Brewfile..."
 brew update

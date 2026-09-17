@@ -67,30 +67,12 @@ stow nvim
 stow zed
 stow ghostty
 stow borders
+stow opencode
 
 echo "Starting borders as a login service..."
 brew services start felixkratz/formulae/borders
 
 echo "Dotfiles stowed"
-
-##################
-# Claude skills #
-##################
-
-echo "Linking Claude skills (opencode compat)..."
-mkdir -p "$HOME/.claude/skills"
-for skill in add-to-inbox git-commit grill-me handoff; do
-	ln -sfn "$HOME/.dotfiles/claude/skills/$skill" "$HOME/.claude/skills/$skill"
-done
-
-###############
-# OpenCode    #
-###############
-
-echo "Linking OpenCode config..."
-mkdir -p "$HOME/.config/opencode"
-ln -sf "$HOME/.dotfiles/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc"
-ln -sf "$HOME/.dotfiles/opencode/AGENTS.md" "$HOME/.config/opencode/AGENTS.md"
 
 #########################
 # Environment variables #
