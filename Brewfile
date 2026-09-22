@@ -21,7 +21,6 @@ brew "mas"
 ####################
 
 brew "herdr"
-brew "tmux"
 brew "starship"
 brew "zoxide"
 

@@ -40,8 +40,8 @@ alias cd="z"
 
 # NVM
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVIM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/nvm.config.d/bash_completion" ] && \. "$NVM_DIR/nvm.config.d/bash_completion"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # Android 
 export ANDROID_HOME="$HOME/Library/Android/sdk"

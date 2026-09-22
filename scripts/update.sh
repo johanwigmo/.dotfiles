@@ -7,7 +7,7 @@ git pull
 
 echo "Re-stowing configurations"
 
-for pkg in zsh starship herdr tmux git nvim zed ghostty opencode; do
+for pkg in zsh starship herdr git nvim zed ghostty opencode; do
 	stow -R "$pkg"
 done
 
@@ -22,9 +22,6 @@ if ! brew upgrade --cask; then
 	echo "Common cause: the app is running - quit it and re-run this script"
 fi
 brew cleanup
-
-echo "Updating TPM plugins..."
-~/.tmux/plugins/tpm/bin/update_plugins all
 
 echo "Update complete!"
 

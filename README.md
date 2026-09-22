@@ -23,7 +23,6 @@ The bootstrap script will:
 - Install Homebrew
 - Install all applications and CLI tools from Brewfile
 - Set up dotfiles using GNU Stow
-- Install Tmux Plugin Manager
 - Configure macOS defaults
 
 The script is idempotent and safe to re-run.
@@ -34,11 +33,14 @@ The update sript will:
 - Pull latest dotfiles from git
 - Re-stows configurations
 - Update Homebrew packages
-- Update Tmux plugins
 
 ## Manual Configuration
 
 Some setup require manual configuration after bootstrap. These are some of the things I need to adjust (not all, because I never remember what I have changed):
+
+### App Store Sign-In
+
+The Brewfile installs Toggl Track, Vimlike, and Magnet via `mas`, which requires a signed-in App Store account — sign in and re-run bootstrap/update if these were skipped.
 
 ### Xcode
 
@@ -54,6 +56,16 @@ sudo xcodebuild -license accept
 # Install additional components
 sudo xcodebuild -runFirstLaunch
 ```
+
+### Remote Access (SSH)
+
+Needed for headless or remote use (Mac Mini):
+
+```bash
+sudo systemsetup -setremotelogin on
+```
+
+Or enable via: System Settings > General > Sharing > Remote Login
 
 ### Keyboard Setup
 
@@ -79,13 +91,4 @@ Re-tow the configuration:
 cd ~/.dotfiles
 stow -R [tool] # e.g., stow -R zsh
 ```
-
-### Tmux plugins not loading
-
-Install TPM Manually: 
-```bash
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-```
-
-Then press `prefix + I` in tmux to install plugins.
 

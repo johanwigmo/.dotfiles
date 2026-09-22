@@ -63,7 +63,7 @@ cd "$HOME/.dotfiles"
 
 echo "Stowing dotfiles..."
 
-for pkg in zsh starship herdr tmux git nvim zed ghostty opencode; do
+for pkg in zsh starship herdr git nvim zed ghostty opencode; do
 	stow "$pkg"
 done
 
@@ -82,17 +82,6 @@ if [ ! -f "$ENV_FILE" ]; then
 else 
 	echo "dotfiles.env already exists - skipping"
 fi
-
-#######################
-# Tmux Plugin Manager #
-#######################
-
-echo "Installing TPM (Tmux Plugin Manager)..."
-if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then 
-	git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-fi
-
-~/.tmux/plugins/tpm/bin/install_plugins
 
 ##################
 # macOS Defaults #
