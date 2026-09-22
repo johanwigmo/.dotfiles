@@ -42,7 +42,7 @@ Some setup require manual configuration after bootstrap. These are some of the t
 
 ### Xcode
 
-Installed automatically via `mas` in the Brewfile. After installation:
+Install from the App Store (or developer.apple.com for a specific version) — intentionally not in the Brewfile, since a multi-GB `mas` download can stall or abort the bootstrap. After installation:
 
 ```bash
 # Point xcode-select to full Xcode

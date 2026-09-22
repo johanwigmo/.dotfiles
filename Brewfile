@@ -67,7 +67,7 @@ brew "tldr"
 
 brew "watchman"
 cask "android-platform-tools"
-mas "Xcode", id: 497799835
+# Xcode intentionally not via mas - install manually (see README)
 
 ###########
 # Web Dev #

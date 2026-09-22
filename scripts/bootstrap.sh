@@ -42,7 +42,10 @@ echo "Tapping required repositories..."
 brew tap FelixKratz/formulae
 
 echo "Running Brew bundle..."
-brew bundle --file="$HOME/.dotfiles/Brewfile"
+if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
+	echo "Warning: some Brewfile items failed to install"
+	echo "mas apps may need an App Store sign-in - re-run this script later to finish"
+fi
 
 ###############################
 # Create ~/.config if missing #

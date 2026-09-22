@@ -19,8 +19,14 @@ stow -R opencode
 
 echo "Updating Homebrew and packages from Brewfile..."
 brew update
-brew bundle --file="$HOME/.dotfiles/Brewfile"
-brew upgrade --cask
+if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
+	echo "Warning: some Brewfile items failed to update"
+	echo "mas apps may need an App Store sign-in - re-run this script later"
+fi
+if ! brew upgrade --cask; then
+	echo "Warning: some casks failed to upgrade (errors above)"
+	echo "Common cause: the app is running - quit it and re-run this script"
+fi
 brew cleanup
 
 echo "Updating TPM plugins..."
