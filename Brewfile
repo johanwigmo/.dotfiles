@@ -75,12 +75,6 @@ cask "android-platform-tools"
 
 brew "hugo"
 
-#####################
-# Window Management #
-#####################
-
-brew "borders"
-
 ############
 # GUI Apps #
 ############

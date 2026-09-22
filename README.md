@@ -6,7 +6,7 @@ My macOS environment setup.
 
 ```bash
 # Clone the repository
-git clone https://github.com/johanwigmo/.dotfiles.git ~/.dotfiles.git
+git clone https://github.com/johanwigmo/.dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 
 # Make bootstrap executable (if needed)

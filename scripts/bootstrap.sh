@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DOTFILES_DIR="$HOME/.dotfiles"
-if [[ "$PWD" != "$DOTFILES_DIR" ]]; then 
+if [[ "$PWD" != "$DOTFILES_DIR" ]]; then
 	echo "Error: Please run this script from $DOTFILES_DIR"
 	exit 1
 fi
@@ -13,10 +13,10 @@ echo "===== Starting bootstrap ====="
 # Xcode Command Line Tools #
 ############################
 
-if ! xcode-select -p &>/dev/null; then 
+if ! xcode-select -p &>/dev/null; then
 	echo "Installing Xcode Command Line Tools..."
 	xcode-select --install || true
-else 
+else
 	echo "Xcode Command Line Tools already installed"
 fi
 
@@ -25,12 +25,12 @@ fi
 ####################
 
 if ! command -v brew &>/dev/null; then
-	echo "Installing Homebrew..."	
-    	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	echo "Installing Homebrew..."
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 	echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
 	eval "$(/opt/homebrew/bin/brew shellenv)"
-else 
+else
 	echo "Homebrew already installed"
 fi
 
@@ -38,8 +38,10 @@ fi
 # Brew bundle (install apps + CLI tools) #
 ##########################################
 
-echo "Tapping required repositories..."
-brew tap FelixKratz/formulae
+if command -v mas &>/dev/null && ! mas account &>/dev/null; then
+	echo "Not signed in to the App Store - mas apps in the Brewfile will fail"
+	echo "Sign in via the App Store app, then re-run this script"
+fi
 
 echo "Running Brew bundle..."
 if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
@@ -61,19 +63,9 @@ cd "$HOME/.dotfiles"
 
 echo "Stowing dotfiles..."
 
-stow zsh
-stow starship
-stow herdr
-stow tmux
-stow git
-stow nvim
-stow zed
-stow ghostty
-stow borders
-stow opencode
-
-echo "Starting borders as a login service..."
-brew services start felixkratz/formulae/borders
+for pkg in zsh starship herdr tmux git nvim zed ghostty opencode; do
+	stow "$pkg"
+done
 
 echo "Dotfiles stowed"
 
@@ -83,7 +75,7 @@ echo "Dotfiles stowed"
 
 ENV_FILE="$HOME/.config/dotfiles.env"
 
-if [ ! -f "$ENV_FILE" ]; then 
+if [ ! -f "$ENV_FILE" ]; then
 	echo "Creating environment file at $ENV_FILE"
 	cp "$HOME/.dotfiles/config/dotfiles.env" "$ENV_FILE"
 	echo "dotfiles.env installed"
@@ -129,8 +121,6 @@ echo "macOS defaults applied!"
 # Finalize #
 ############
 
-echo "Reloading shell..."
-exec zsh -l
-
 echo "Bootstrap complete!"
+echo "Open a new terminal (or run: source ~/.zshrc) to pick up PATH changes"
 

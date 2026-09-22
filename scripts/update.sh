@@ -6,16 +6,10 @@ cd "$HOME/.dotfiles"
 git pull
 
 echo "Re-stowing configurations"
-stow -R zsh
-stow -R starship
-stow -R herdr
-stow -R tmux
-stow -R git
-stow -R nvim
-stow -R zed
-stow -R ghostty
-stow -R borders
-stow -R opencode
+
+for pkg in zsh starship herdr tmux git nvim zed ghostty opencode; do
+	stow -R "$pkg"
+done
 
 echo "Updating Homebrew and packages from Brewfile..."
 brew update
