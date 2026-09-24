@@ -7,6 +7,13 @@ git pull
 
 echo "Re-stowing configurations"
 
+if ! command -v stow &>/dev/null; then
+	echo "Error: stow is not installed"
+	echo "This script assumes bootstrap.sh has been run"
+	echo "To install manually: brew install stow"
+	exit 1
+fi
+
 for pkg in zsh starship herdr git nvim zed ghostty opencode; do
 	stow -R "$pkg"
 done

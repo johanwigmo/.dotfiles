@@ -63,6 +63,12 @@ cd "$HOME/.dotfiles"
 
 echo "Stowing dotfiles..."
 
+if ! command -v stow &>/dev/null; then
+	echo "stow not found - brew bundle may have failed earlier"
+	echo "Installing stow..."
+	brew install stow
+fi
+
 for pkg in zsh starship herdr git nvim zed ghostty opencode; do
 	stow "$pkg"
 done
