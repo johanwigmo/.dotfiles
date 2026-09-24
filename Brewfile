@@ -90,6 +90,9 @@ cask "postman"
 # Browsers
 cask "google-chrome"
 
+# Utilities
+cask "tailscale"
+
 # Productivity
 mas "Toggl Track", id: 1291898086
 mas "Vimlike", id: 1584519802
