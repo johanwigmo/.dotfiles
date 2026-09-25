@@ -15,8 +15,17 @@ LOG="$HOME/Library/Logs/notes-sync.log"
 export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
 
 # guard against overlapping runs (manual kick while scheduled run in progress)
-exec 9>"$HOME/.notes-sync.lock"
-flock -n 9 || exit 0
+LOCK="$HOME/.notes-sync.lock"
+if ! mkdir "$LOCK" 2>/dev/null; then
+  # stale lock (crash mid-run previously): steal it if older than 2 hours
+  if [ $(($(date +%s) - $(stat -f %m "$LOCK"))) -gt 7200 ]; then
+    rm -rf "$LOCK"
+    mkdir "$LOCK"
+  else
+    exit 0
+  fi
+fi
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT
 
 g() { git --git-dir="$GB" --work-tree="$WT" "$@"; }
 
