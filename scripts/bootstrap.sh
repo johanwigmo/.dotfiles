@@ -113,6 +113,15 @@ killall Dock
 echo "macOS defaults applied!"
 
 ############
+# LaunchAgents #
+############
+
+echo "Installing LaunchAgents..."
+if ! "$HOME/.dotfiles/scripts/install-launchagents.sh"; then
+	echo "Warning: LaunchAgent install had issues (see above)"
+fi
+
+############
 # Finalize #
 ############
 

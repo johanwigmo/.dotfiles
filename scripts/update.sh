@@ -18,6 +18,9 @@ for pkg in zsh starship herdr git nvim zed ghostty opencode; do
 	stow -R "$pkg"
 done
 
+echo "Refreshing LaunchAgents..."
+"$HOME/.dotfiles/scripts/install-launchagents.sh" || echo "Warning: LaunchAgent refresh had issues (see above)"
+
 echo "Updating Homebrew and packages from Brewfile..."
 brew update
 if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
