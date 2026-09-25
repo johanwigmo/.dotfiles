@@ -2,13 +2,36 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>LANG</key>
+		<string>en_US.UTF-8</string>
+		<key>PATH</key>
+		<string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+	</dict>
 	<key>Label</key>
 	<string>dev.wigmo.notes-sync</string>
 	<key>ProgramArguments</key>
 	<array>
+		<string>/usr/bin/ssh</string>
+		<string>-i</string>
+		<string>/Users/johanwigmo/.ssh/id_ed25519</string>
+		<string>-o</string>
+		<string>IdentitiesOnly=yes</string>
+		<string>-o</string>
+		<string>BatchMode=yes</string>
+		<string>-o</string>
+		<string>ConnectTimeout=10</string>
+		<string>-o</string>
+		<string>StrictHostKeyChecking=accept-new</string>
+		<string>localhost</string>
 		<string>/bin/zsh</string>
 		<string>/Users/johanwigmo/.dotfiles/scripts/sync-notes.sh</string>
 	</array>
+	<key>StandardErrorPath</key>
+	<string>/tmp/notes-sync.launchd.err</string>
+	<key>StandardOutPath</key>
+	<string>/tmp/notes-sync.launchd.out</string>
 	<key>StartCalendarInterval</key>
 	<dict>
 		<key>Hour</key>
@@ -16,14 +39,5 @@
 		<key>Minute</key>
 		<integer>30</integer>
 	</dict>
-	<key>EnvironmentVariables</key>
-	<dict>
-		<key>PATH</key>
-		<string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
-	</dict>
-	<key>StandardOutPath</key>
-	<string>/tmp/notes-sync.launchd.out</string>
-	<key>StandardErrorPath</key>
-	<string>/tmp/notes-sync.launchd.err</string>
 </dict>
 </plist>
