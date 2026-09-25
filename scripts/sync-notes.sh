@@ -18,15 +18,15 @@ export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o Ba
 LOCK="$HOME/.notes-sync.lock"
 if ! mkdir "$LOCK" 2>/dev/null; then
   age=$(($(date +%s) - $(stat -f %m "$LOCK")))
-  # steal the lock if it is stale (crash mid-run) or a leftover file from an older version
-  if [ ! -d "$LOCK" ] || [ $age -gt 7200 ]; then
+  # steal the lock if it is stale (crash or killed mid-run) or a leftover file from an older version
+  if [ ! -d "$LOCK" ] || [ $age -gt 1800 ]; then
     rm -rf "$LOCK"
     mkdir "$LOCK"
   else
     exit 0
   fi
 fi
-trap 'rmdir "$LOCK" 2>/dev/null' EXIT
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM HUP
 
 g() { git --git-dir="$GB" --work-tree="$WT" "$@"; }
 
