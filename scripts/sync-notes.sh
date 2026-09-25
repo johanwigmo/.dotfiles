@@ -41,6 +41,14 @@ g() { git --git-dir="$GB" --work-tree="$WT" "$@"; }
     exit 1
   fi
 
+  # self-heal: single-writer means a stale index.lock can only come from a
+  # killed run (e.g. iCloud FileProvider stall) — steal it if clearly dead
+  IXL="$GB/index.lock"
+  if [ -f "$IXL" ] && [ $(($(date +%s) - $(stat -f %m "$IXL"))) -gt 1800 ]; then
+    echo "notice: stealing stale index.lock"
+    rm -f "$IXL"
+  fi
+
   g add -A
   if g diff --cached --quiet; then
     echo "no changes"
