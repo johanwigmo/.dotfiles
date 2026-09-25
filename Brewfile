@@ -91,7 +91,7 @@ cask "postman"
 cask "google-chrome"
 
 # Utilities
-cask "tailscale"
+cask "tailscale-app"
 
 # Productivity
 mas "Toggl Track", id: 1291898086
