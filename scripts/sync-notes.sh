@@ -50,6 +50,14 @@ g() { git --git-dir="$GB" --work-tree="$WT" "$@"; }
   fi
 
   g add -A
+  # guard: GitHub rejects the WHOLE push if any file exceeds 100 MB (GH001) —
+  # catch staged offenders before committing, leave them staged for triage
+  OVERSIZED=$(g diff --cached --name-only -z | xargs -0 stat -f "%z %N" 2>/dev/null | awk '$1 > 104857600')
+  if [ -n "$OVERSIZED" ]; then
+    echo "error: staged file(s) over GitHub's 100 MB limit — commit/push skipped:"
+    echo "$OVERSIZED"
+    exit 1
+  fi
   if g diff --cached --quiet; then
     echo "no changes"
   else
