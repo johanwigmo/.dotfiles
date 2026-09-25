@@ -28,7 +28,9 @@ if ! mkdir "$LOCK" 2>/dev/null; then
 fi
 trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM HUP
 
-g() { git --git-dir="$GB" --work-tree="$WT" "$@"; }
+  g() { git --git-dir="$GB" --work-tree="$WT" "$@"; }
+
+  cd "$WT"
 
 {
   echo "=== $(date '+%Y-%m-%d %H:%M:%S') ==="
@@ -51,8 +53,9 @@ g() { git --git-dir="$GB" --work-tree="$WT" "$@"; }
 
   g add -A
   # guard: GitHub rejects the WHOLE push if any file exceeds 100 MB (GH001) —
-  # catch staged offenders before committing, leave them staged for triage
-  OVERSIZED=$(g diff --cached --name-only -z | xargs -0 stat -f "%z %N" 2>/dev/null | awk '$1 > 104857600')
+  # catch staged offenders before committing, leave them staged for triage.
+  # (|| true: stat/xargs exit nonzero for deleted paths and pipefail would kill us)
+  OVERSIZED=$(g diff --cached --name-only -z | xargs -0 stat -f "%z %N" 2>/dev/null | awk '$1 > 104857600') || true
   if [ -n "$OVERSIZED" ]; then
     echo "error: staged file(s) over GitHub's 100 MB limit — commit/push skipped:"
     echo "$OVERSIZED"
