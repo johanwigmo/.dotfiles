@@ -11,7 +11,7 @@ usage: toggl-weekly.sh [YYYY-MM-DD | YYYY-Www]
   --debug     dump raw API responses to stderr
 
 env:
-  TOGGL_API_TOKEN      required  (add: export TOGGL_API_TOKEN=... to ~/.config/dotfiles.env)
+  TOGGL_API_TOKEN      optional — read from login keychain (item 'toggl-weekly') when unset
   TOGGL_WORKSPACE_ID   optional  (auto-resolved from /me when unset)
 EOF
   exit 1
@@ -66,8 +66,10 @@ else
   LABEL="$MONDAY → $SUNDATE"
 fi
 
-: "${TOGGL_API_TOKEN:=}"
-[ -n "$TOGGL_API_TOKEN" ] || err "TOGGL_API_TOKEN is not set — add 'export TOGGL_API_TOKEN=...' to ~/.config/dotfiles.env"
+if [ -z "${TOGGL_API_TOKEN:-}" ]; then
+  TOGGL_API_TOKEN=$(security find-generic-password -s toggl-weekly -w 2>/dev/null || true)
+fi
+[ -n "${TOGGL_API_TOKEN:-}" ] || err "no token: run 'security add-generic-password -a <user> -s toggl-weekly -T /usr/bin/security -w <token>' or export TOGGL_API_TOKEN"
 
 BASE="https://api.track.toggl.com"
 
