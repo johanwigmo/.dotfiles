@@ -67,6 +67,15 @@ sudo systemsetup -setremotelogin on
 
 Or enable via: System Settings > General > Sharing > Remote Login
 
+### Secrets & Headless Notes (Mac Mini)
+
+The Mini runs unattended (autologin, FileVault intentionally off — there is no GUI unlock at boot). Accepted tradeoffs, do not "fix" casually:
+
+- `~/.ssh/id_ed25519` is intentionally passphrase-less so the nightly `sync-notes.sh` (BatchMode SSH) and dev pushes work without interaction — adding a passphrase silently breaks the headless sync
+- Script secrets live in `~/.config/dotfiles.env` (mode 600, gitignored; fresh machines are seeded from the tracked `config/dotfiles.env.example`). Contains: `NOTES`, `TODO`, `NOTES_SYNC_HOST`, `TOGGL_API_TOKEN`
+- Without FileVault these sit plaintext at rest. The GitHub account key is the highest-value item on the disk; if it ever needs hardening, scope per-repo deploy keys — the login keychain is not an option here (stays locked in headless/SSH contexts)
+- `TOGGL_API_TOKEN` and `NOTES_SYNC_HOST` are regenerable: Toggl profile settings / `sync-notes.sh` and its LaunchAgent config
+
 ### Keyboard Setup
 
 - **Input Sources**: System Settings > Keyboard > Input Sorces
