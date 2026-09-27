@@ -17,3 +17,7 @@ herdr/.config/herdr/*.log
 herdr/.config/herdr/session.json
 herdr/.config/herdr/.plugins.lock
 
+# env secrets: authoritative copy lives in ~/.config/dotfiles.env, never in the repo
+# (bootstrap seeds fresh machines from the tracked dotfiles.env.example instead)
+config/dotfiles.env
+

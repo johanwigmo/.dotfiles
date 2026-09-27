@@ -83,9 +83,9 @@ ENV_FILE="$HOME/.config/dotfiles.env"
 
 if [ ! -f "$ENV_FILE" ]; then
 	echo "Creating environment file at $ENV_FILE"
-	cp "$HOME/.dotfiles/config/dotfiles.env" "$ENV_FILE"
-	echo "dotfiles.env installed"
-else 
+	cp "$HOME/.dotfiles/config/dotfiles.env.example" "$ENV_FILE"
+	echo "dotfiles.env installed (add machine-local secrets to it manually)"
+else
 	echo "dotfiles.env already exists - skipping"
 fi
 
