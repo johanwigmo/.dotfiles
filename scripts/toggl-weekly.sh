@@ -11,7 +11,7 @@ usage: toggl-weekly.sh [YYYY-MM-DD | YYYY-Www]
   --debug     dump raw API responses to stderr
 
 env:
-  TOGGL_API_TOKEN      optional — read from login keychain (item 'toggl-weekly') when unset
+  TOGGL_API_TOKEN      required — token from track.toggl.com/profile
   TOGGL_WORKSPACE_ID   optional  (auto-resolved from /me when unset)
 EOF
   exit 1
@@ -33,6 +33,13 @@ to_days() {
   local e
   e=$(date -j -f "%F %H:%M" "$1 00:00" +%s 2>/dev/null) || return 1
   echo $(( (e + 43200) / 86400 ))
+}
+
+# date -> RFC3339 local-midnight timestamp, e.g. 2026-09-21T00:00:00+02:00
+iso_local() {
+  local off
+  off=$(date -j -f "%F %H:%M" "$1 00:00" +%z 2>/dev/null) || err "unparseable date: $1"
+  echo "${1}T00:00:00${off:0:3}:${off:3}"
 }
 
 DAYS=""
@@ -59,6 +66,7 @@ mon_days=$(( DAYS - (dow - 1) ))
 sun_days=$(( mon_days + 6 ))
 MONDAY=$(date -r $(( mon_days * 86400 )) +%F)
 SUNDATE=$(date -r $(( sun_days * 86400 )) +%F)
+NEXT_MON=$(date -r $(( (sun_days + 1) * 86400 )) +%F)
 weekno=$(date -r $(( (mon_days + 3) * 86400 )) +%V 2>/dev/null || true)
 if [ -n "${weekno:-}" ]; then
   LABEL="W$weekno: $MONDAY → $SUNDATE"
@@ -66,10 +74,8 @@ else
   LABEL="$MONDAY → $SUNDATE"
 fi
 
-if [ -z "${TOGGL_API_TOKEN:-}" ]; then
-  TOGGL_API_TOKEN=$(security find-generic-password -s toggl-weekly -w 2>/dev/null || true)
-fi
-[ -n "${TOGGL_API_TOKEN:-}" ] || err "no token: run 'security add-generic-password -a <user> -s toggl-weekly -T /usr/bin/security -w <token>' or export TOGGL_API_TOKEN"
+TOGGL_API_TOKEN=${TOGGL_API_TOKEN:-}
+[ -n "$TOGGL_API_TOKEN" ] || err "no token: export TOGGL_API_TOKEN (add it to ~/.config/dotfiles.env)"
 
 BASE="https://api.track.toggl.com"
 
@@ -100,13 +106,16 @@ else
 fi
 [ -n "${WS:-}" ] || err "could not resolve workspace id — check TOGGL_API_TOKEN"
 
-WEEKLY=$(api POST "/reports/api/v3/workspace/$WS/weekly/time_entries" \
-  "{\"start_date\":\"$MONDAY\",\"end_date\":\"$SUNDATE\"}")
+START_ISO=$(iso_local "$MONDAY")
+END_ISO=$(iso_local "$NEXT_MON")
+QSTART=${START_ISO/+/%2B}
+QEND=${END_ISO/+/%2B}
+ENTRIES=$(api GET "/api/v9/me/time_entries?start_date=$QSTART&end_date=$QEND")
 PROJECTS=$(api GET "/api/v9/workspaces/$WS/projects")
 
 if [ "$DBG" = 1 ]; then
-  echo "--- weekly ---" >&2
-  printf '%s' "$WEEKLY" | jq . >&2
+  echo "--- time entries (count: $(printf '%s' "$ENTRIES" | jq 'length' 2>/dev/null || echo ?)) ---" >&2
+  printf '%s' "$ENTRIES" | jq . >&2
   echo "--- projects (count: $(printf '%s' "$PROJECTS" | jq 'length' 2>/dev/null || echo ?)) ---" >&2
   printf '%s' "$PROJECTS" | jq 'if type == "array" then .[0:3] else . end' >&2
 fi
@@ -119,29 +128,38 @@ aggregate() {
       (if $h > 0 then "\($h)h" else "" end) +
       (if $m > 0 then (if $h > 0 then " " else "" end) + "\($m)m" else "" end)
       end;
-    .[0] as $rows |
+    def esc: (gsub("\\|"; "\\|") | gsub("\\n"; " "));
+    .[0] as $me |
     (.[1] | map({key: (.id|tostring), value: {name: .name, client_name: .client_name}}) | from_entries) as $proj |
-    [ $rows[] | { pid: (.project_id // null), s: ((.seconds // []) | add // 0) } ]
+    [ $me[]
+      | { pid: (.project_id // -1), t: ((.description // "") | esc),
+          s: (if (.duration // 0) > 0 then .duration else (now + (.duration // 0)) end) }
+      | select(.s > 0) ]
     | if length == 0 then empty else . end
-    | group_by(.pid // "")
-    | map({ pid: (.[0].pid // null), s: (map(.s) | add) })
+    | group_by(.pid)
+    | map({
+        pid: .[0].pid,
+        s: (map(.s) | add),
+        entries: (group_by(.t) | map({ t: .[0].t, s: (map(.s) | add) }))
+      })
     | sort_by(-.s)
     | (map(.s) | add // 0) as $total
-    | map({
-        label: (
-          if .pid == null then "(no project)"
-          else ($proj[.pid|tostring] // {name: "(unknown project)", client_name: null}) as $p |
-            ((if ($p.client_name // null) != null
-              then ($p.client_name | gsub("\\|"; "\\|")) + " · "
-              else "" end)
-            + (($p.name // "(unknown project)") | gsub("\\|"; "\\|")))
-          end),
-        hours: (.s | hhmm)
-      })
-    | (map({project: .label, hours: .hours})) as $lines
+    | map(
+        (if (.pid // -1) == -1 then "(no project)"
+         else ($proj[.pid|tostring] // {name: "(unknown project)", client_name: null}) as $p |
+           ((if ($p.client_name // null) != null
+             then ($p.client_name | gsub("\\|"; "\\|")) + " · "
+             else "" end)
+           + (($p.name // "(unknown project)") | gsub("\\|"; "\\|")))
+         end) as $label
+        | ["| \($label) | \(.s | hhmm) |"] +
+          (.entries | sort_by(-.s)
+           | map("| ↳ \(if .t == "" then "(no description)" else .t end) | \(.s | hhmm) |"))
+      )
+    | flatten as $lines
     | ($lines[], { total: ($total | hhmm) })
-    | if .project then "| \(.project) | \(.hours) |" else "TOTAL: \(.total)" end
-  ' <(printf '%s' "$WEEKLY") <(printf '%s' "$PROJECTS")
+    | if type == "string" then . else "TOTAL: \(.total)" end
+  ' <(printf '%s' "$ENTRIES") <(printf '%s' "$PROJECTS")
 }
 
 if [ "$DBG" = 1 ]; then
@@ -150,7 +168,7 @@ if [ "$DBG" = 1 ]; then
   exit 0
 fi
 
-OUT=$(aggregate) || err "could not parse weekly report response (run with --debug to inspect)"
+OUT=$(aggregate) || err "could not parse time entries response (run with --debug to inspect)"
 
 TOTAL=$(printf '%s' "$OUT" | grep '^TOTAL:' | cut -d' ' -f2- || true)
 if [ "$TOTAL" = "TOTAL: 0h" ] || [ -z "$TOTAL" ]; then
@@ -160,6 +178,6 @@ fi
 
 echo "Time $LABEL — total ${TOTAL#TOTAL: }"
 echo ""
-echo "| Project | Hours |"
+echo "| Project / Notes | Hours |"
 echo "|---|---|"
 printf '%s\n' "$OUT" | grep '^|'
