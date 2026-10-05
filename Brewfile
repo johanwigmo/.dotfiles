@@ -15,6 +15,7 @@ brew "node"
 brew "nvm"
 brew "tree-sitter-cli"
 brew "mas"
+brew "xcodegen"
 
 ####################
 # Terminal & Shell #
