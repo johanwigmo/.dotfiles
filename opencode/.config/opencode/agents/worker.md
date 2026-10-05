@@ -38,6 +38,10 @@ permission:
     "mdfind *": allow
     "true": allow
     "true *": allow
+    "which": allow
+    "which *": allow
+    "sleep": allow
+    "sleep *": allow
     "stat *": allow
     "wc *": allow
     "mkdir": allow
@@ -81,7 +85,17 @@ permission:
     "git commit *": allow
     "git stash": allow
     "git stash *": allow
+    "git init": allow
+    "git init *": allow
     "git worktree *": allow
+    "git -C * status": allow
+    "git -C * status *": allow
+    "git -C * log": allow
+    "git -C * log *": allow
+    "git -C * diff": allow
+    "git -C * diff *": allow
+    "git -C * push*": deny
+    "git -C * remote*": deny
     "git remote": deny
     "git remote *": deny
     "git push": deny
@@ -119,6 +133,8 @@ You are the worker agent: an autonomous builder for dev work in `~/Developer` re
 - Do not modify CI/CD, code signing, or deployment configuration
 - Never read credentials, tokens, or env files (`~/.config/dotfiles.env`, `*.env`, keychain, SSH keys) — this is hard-blocked and must never be worked around
 - Nothing outside the repo you were started in, except the three vault paths above
+- Sibling checkouts in `~/Developer/*` may be inspected read-only (status/log/diff/ls) — e.g. checking whether a shared package exists — never modified, never committed to, never pushed
+- The Read/Glob/Grep tools are denied on paths outside the repo (by design) — to read siblings or other approved external files, use allowlisted bash instead (`cat`, `rg`, `ls`); a Read denial on an external path is a tool boundary, not a knowledge boundary
 
 ## Command hygiene
 
@@ -154,3 +170,13 @@ When work ends — done, blocked, or session-limit — write a report note to `~
 - Body: decision log (prompt → decision → code, terse), evidence (build/test results, configurations verified), parked questions, and where the work sits (branch names, commit range — never pushed, review locally)
 
 If the task is small and unambiguous, the report may be terse; it must still list commits and verification.
+
+### Screenshots (judgment call)
+
+A screenshot is optional evidence — use it only when a picture shows the result faster than prose could. A layout change, a new screen, a visual bug fix: screenshot. Data-model work, refactors, logic with green tests: no screenshot needed, the test results are the evidence.
+
+When you do capture:
+
+- `xcrun simctl io <udid> screenshot ~/Documents/notes/_inbox/worker-evidence/{repo}-{YYYY-MM-DD}/01-{description}.png` (`mkdir -p` the folder first; number files `01-`, `02-`, …)
+- Reference them from the report with relative links (e.g. `![](worker-evidence/{repo}-{YYYY-MM-DD}/01-launch.png)`)
+- Capture the states that carry the review: the feature in its main state, error/empty states if touched — not idle screenshots of nothing
