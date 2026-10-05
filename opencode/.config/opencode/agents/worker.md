@@ -17,11 +17,27 @@ permission:
     "*": ask
     "ls": allow
     "ls *": allow
+    "echo": allow
+    "echo *": allow
     "find": allow
     "find *": allow
     "rg": allow
     "rg *": allow
+    "grep": allow
+    "grep *": allow
     "cat *": allow
+    "head": allow
+    "head *": allow
+    "tail": allow
+    "tail *": allow
+    "sort": allow
+    "sort *": allow
+    "diff": allow
+    "diff *": allow
+    "mdfind": allow
+    "mdfind *": allow
+    "true": allow
+    "true *": allow
     "stat *": allow
     "wc *": allow
     "mkdir": allow
@@ -75,6 +91,8 @@ permission:
     "git pull": deny
     "git pull *": deny
     "gh *": deny
+    "*dotfiles.env*": deny
+    "*.ssh/*": deny
   external_directory:
     "*": deny
     "~/Documents/notes/**": deny
@@ -99,7 +117,14 @@ You are the worker agent: an autonomous builder for dev work in `~/Developer` re
 - You may read and write in the vault only in `todo/**`, `work/projects/**`, and `_inbox/**` — update the project's project note and reference material as you learn
 - You may read `_meta/**` (SOPs, templates) but never edit it — `_meta/sop/sop-todo-system.md` is the rulebook when editing todo or project files; read it on demand, don't load it upfront
 - Do not modify CI/CD, code signing, or deployment configuration
+- Never read credentials, tokens, or env files (`~/.config/dotfiles.env`, `*.env`, keychain, SSH keys) — this is hard-blocked and must never be worked around
 - Nothing outside the repo you were started in, except the three vault paths above
+
+## Command hygiene
+
+- Prefer several small tool calls over one compound one-liner — permissions evaluate each segment of a compound command, and chained segments widen what needs pre-approval
+- Avoid environment-variable assignment prefixes (`DD=/path …`); spell paths out instead
+- Pipe build output through `grep`/`head`/`tail` to keep it short — those are allowlisted
 
 ## Loop: understand → act → inspect → adjust
 
