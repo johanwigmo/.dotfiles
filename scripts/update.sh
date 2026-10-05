@@ -23,9 +23,22 @@ echo "Refreshing LaunchAgents..."
 
 echo "Updating Homebrew and packages from Brewfile..."
 brew update
+
+# opencode: brew cannot switch an installed formula between taps, so a copy
+# from another tap (e.g. homebrew/core) makes every brew bundle run fail on it
+if brew list --formula opencode &>/dev/null && ! brew list --formula --full-name | grep -qx "anomalyco/tap/opencode"; then
+	echo "opencode installed from another tap - switching to anomalyco/tap"
+	brew tap anomalyco/tap
+	brew uninstall opencode && brew install anomalyco/tap/opencode \
+		|| echo "Warning: opencode tap switch failed - run manually: brew uninstall opencode && brew install anomalyco/tap/opencode"
+fi
+
 if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
-	echo "Warning: some Brewfile items failed to update"
-	echo "mas apps may need an App Store sign-in - re-run this script later"
+	echo "Warning: some Brewfile items failed - retrying once"
+	if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
+		echo "Warning: some Brewfile items still failed after re-run"
+		echo "mas apps may need an App Store sign-in - re-run this script later"
+	fi
 fi
 if ! brew upgrade --cask; then
 	echo "Warning: some casks failed to upgrade (errors above)"

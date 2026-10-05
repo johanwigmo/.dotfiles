@@ -103,3 +103,15 @@ cd ~/.dotfiles
 stow -R [tool] # e.g., stow -R zsh
 ```
 
+### Brewfile upgrades report failures
+
+`brew bundle` can report upgrades as failed with no error text (seen with Homebrew 7's new upgrade flow). The failures are transient — each formula upgrades fine individually and `brew bundle` is idempotent, so re-run `./scripts/update.sh`. The update script also retries `brew bundle` once automatically.
+
+If `opencode` fails with "installed from the homebrew/core tap but you are trying to install it from the anomalyco/tap", switch once manually:
+
+```bash
+brew uninstall opencode && brew install anomalyco/tap/opencode
+```
+
+(The update script detects and fixes this automatically on newer copies.)
+
