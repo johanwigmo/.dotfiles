@@ -12,9 +12,11 @@ zed/.config/zed/prompts/
 # opencode runtime state (plugins install dependencies locally)
 opencode/.config/opencode/node_modules
 
-# herdr runtime/session state (not config)
+# herdr runtime/session state (not config) - app writes these itself and
+# rename-style writes replace stow symlinks with real files
 herdr/.config/herdr/*.log
 herdr/.config/herdr/session.json
+herdr/.config/herdr/release-notes.json
 herdr/.config/herdr/.plugins.lock
 
 # env secrets: authoritative copy lives in ~/.config/dotfiles.env, never in the repo
