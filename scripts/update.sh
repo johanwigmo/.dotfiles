@@ -15,7 +15,18 @@ if ! command -v stow &>/dev/null; then
 fi
 
 for pkg in zsh starship herdr git nvim zed ghostty opencode; do
-	stow -R "$pkg"
+	if ! stow -R "$pkg"; then
+		echo ""
+		echo "Fix: a tool likely overwrote a stowed symlink with a regular file"
+		echo "(e.g. codegraph init replaces stowed opencode config files)."
+		echo "Keep the new content:"
+		echo "    cd ~/.dotfiles && stow --adopt $pkg && git diff $pkg/"
+		echo "    # then commit the diff (or git checkout -- $pkg/ to discard it)"
+		echo "Discard the new content instead:"
+		echo "    rm <target file from the stow error above> && stow -R $pkg"
+		echo "Then re-run ./scripts/update.sh"
+		exit 1
+	fi
 done
 
 echo "Refreshing LaunchAgents..."
