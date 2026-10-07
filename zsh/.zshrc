@@ -5,6 +5,8 @@ setopt correct
 setopt interactivecomments
 setopt nobeep
 
+export PATH="$HOME/.local/bin:$PATH"
+
 # Install zinit if not present
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 if [[ ! -d "$ZINIT_HOME" ]]; then 
