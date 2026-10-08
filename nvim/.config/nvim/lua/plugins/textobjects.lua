@@ -1,6 +1,6 @@
 -- Treesitter textobjects: syntax-aware o/x-mode objects + n-motion jumps.
 -- Standalone since the nvim-treesitter main-branch rewrite; Swift queries
--- live here: queries/swift/textobjects.scm (function/class/call/parameter).
+-- ship with the plugin (function/class/call/parameter — no conditional/loop).
 return {
     "nvim-treesitter/nvim-treesitter-textobjects",
     branch = "main",
