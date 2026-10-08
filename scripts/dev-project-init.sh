@@ -34,6 +34,8 @@ if [[ ! -d "$TARGET" ]]; then
 	echo "Created $TARGET"
 fi
 
+shopt -s dotglob
+
 # Copy template files, never overwrite
 for file in "$TEMPLATE"/*; do
 	base="$(basename "$file")"
@@ -44,6 +46,7 @@ for file in "$TEMPLATE"/*; do
 		echo "Added: $base"
 	fi
 done
+shopt -u dotglob
 
 # Init git if there is no repo already (including in a parent dir)
 if ! git -C "$TARGET" rev-parse --git-dir &>/dev/null; then
