@@ -44,13 +44,15 @@ return {
             end,
         })
 
-        local todo_root = vim.fn.expand("$TODO_ROOT")
-        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-            pattern = {
-                todo_root .. "/*.txt",
-                todo_root .. "/**/*.txt",
-            },
-            command = "set filetype=todotxt",
-        })
+        -- todotxt files under the vault's todo tree ($TODO, trailing slash).
+        -- Keys are wrapped in ^...$ by add(); escape the path's metachars.
+        local todo_root = vim.env.TODO
+        if todo_root and todo_root ~= "" then
+            vim.filetype.add({
+                pattern = {
+                    [todo_root:gsub("%p", "%%%0") .. ".*%.txt"] = "todotxt",
+                },
+            })
+        end
     end,
 }
