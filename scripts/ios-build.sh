@@ -46,19 +46,24 @@ fi
 
 # --- project root ------------------------------------------------------------
 
+# Package.swift is checked with -f, not a glob: a pattern without wildcard
+# chars is never expanded (nullglob or not), so pkgs=("$ROOT"/Package.swift)
+# would always keep the literal string and false-positive the SPM branch.
+shopt -s nullglob
 ROOT="$PWD"
 while true; do
-	shopt -s nullglob
 	workspaces=("$ROOT"/*.xcworkspace)
 	projects=("$ROOT"/*.xcodeproj)
-	pkgs=("$ROOT"/Package.swift)
-	shopt -u nullglob
+	pkgs=()
+	[[ -f "$ROOT/Package.swift" ]] && pkgs=("$ROOT"/Package.swift)
 	if (( ${#workspaces[@]} + ${#projects[@]} + ${#pkgs[@]} > 0 )); then
 		break
 	fi
 	[[ "$ROOT" == "$HOME" || "$ROOT" == "/" ]] && die "no .xcodeproj/.xcworkspace/Package.swift from $PWD upward"
 	ROOT="$(dirname "$ROOT")"
 done
+shopt -u nullglob
+cd "$ROOT"
 
 if [[ -n "${pkgs[0]:-}" ]] && [[ -z "${projects[0]:-}" && -z "${workspaces[0]:-}" ]]; then
 	case "$action" in
