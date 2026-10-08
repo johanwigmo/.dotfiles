@@ -137,86 +137,9 @@ local function follow_link()
 end
 
 -------------------------------------------------------------------------------
--- Wiki-link completion (nvim-cmp source)
+-- Wiki-link completion now lives in lua/notes/wiki_links.lua
+-- (a native blink.cmp source, wired in lua/plugins/blink.lua)
 -------------------------------------------------------------------------------
-
-local note_cache = {}
-local cache_time = 0
-local cache_ttl = 30 -- seconds
-
-local function scan_notes()
-    local now = os.time()
-    if now - cache_time < cache_ttl and #note_cache > 0 then
-        return note_cache
-    end
-
-    local results = {}
-    local files = vim.fn.globpath(vault, "**/*.md", false, true)
-    for _, file in ipairs(files) do
-        local rel = file:sub(#vault + 1)
-        local name = rel:gsub("%.md$", "")
-        -- Use just the filename (no path) as the label, full relative path as detail
-        local basename = vim.fs.basename(rel):gsub("%.md$", "")
-        table.insert(results, {
-            label = basename,
-            insertText = basename,
-            detail = name,
-            kind = 18, -- Reference
-        })
-    end
-
-    note_cache = results
-    cache_time = now
-    return results
-end
-
-local function register_cmp_source()
-    local ok, cmp = pcall(require, "cmp")
-    if not ok then return end
-
-    local source = {}
-
-    function source:is_available()
-        local bufpath = vim.api.nvim_buf_get_name(0)
-        return vault ~= "" and vim.startswith(bufpath, vault)
-    end
-
-    function source:get_trigger_characters()
-        return { "[" }
-    end
-
-    function source:complete(request, callback)
-        local line = request.context.cursor_before_line
-        -- Only trigger inside [[
-        if not line:match("%[%[[^%]]*$") then
-            callback({ items = {}, isIncomplete = false })
-            return
-        end
-        callback({ items = scan_notes(), isIncomplete = false })
-    end
-
-    cmp.register_source("wiki_links", source)
-
-    -- Add to cmp sources for markdown files
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = "markdown",
-        callback = function()
-            local bufpath = vim.api.nvim_buf_get_name(0)
-            if vault == "" or not vim.startswith(bufpath, vault) then return end
-
-            local config = cmp.get_config()
-            local sources = config.sources or {}
-
-            -- Check if already added
-            for _, s in ipairs(sources) do
-                if s.name == "wiki_links" then return end
-            end
-
-            table.insert(sources, 1, { name = "wiki_links", keyword_length = 1 })
-            cmp.setup.buffer({ sources = sources })
-        end,
-    })
-end
 
 -------------------------------------------------------------------------------
 -- Periodic notes
@@ -395,12 +318,9 @@ end
 -------------------------------------------------------------------------------
 
 function M.setup()
-    -- Dependencies: telescope (for :NewNote), nvim-cmp (for [[wiki-link completion)
-    local deps = { ["telescope.pickers"] = "telescope.nvim", ["cmp"] = "nvim-cmp" }
-    for mod, name in pairs(deps) do
-        if not pcall(require, mod) then
-            vim.notify("notes: optional dependency " .. name .. " not found, some features disabled", vim.log.levels.WARN)
-        end
+    -- Dependency: telescope (for :NewNote); completion is blink.cmp (wiki_links source)
+    if not pcall(require, "telescope.pickers") then
+        vim.notify("notes: optional dependency telescope.nvim not found, :NewNote disabled", vim.log.levels.WARN)
     end
 
     -- Commands
@@ -444,8 +364,6 @@ function M.setup()
         })
     end
 
-    -- Register wiki-link completion source
-    register_cmp_source()
 end
 
 -------------------------------------------------------------------------------
@@ -453,7 +371,7 @@ end
 --
 -- Dependencies (declare these in your plugin specs):
 --   nvim-telescope/telescope.nvim  — :NewNote template picker
---   hrsh7th/nvim-cmp               — [[wiki-link]] completion
+--   saghen/blink.cmp               — [[wiki-link]] completion (notes.wiki_links)
 -------------------------------------------------------------------------------
 
 vim.api.nvim_create_autocmd("User", {
