@@ -67,6 +67,10 @@ brew "tldr"
 
 brew "watchman"
 cask "android-platform-tools"
+brew "xcode-build-server"
+brew "swiftformat"
+brew "swiftlint"
+brew "xcbeautify"
 # Xcode intentionally not via mas - install manually (see README)
 
 ###########
