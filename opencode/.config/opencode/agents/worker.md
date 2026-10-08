@@ -38,15 +38,21 @@ permission:
     "comm *": allow
     "plutil -lint": allow
     "plutil -lint *": allow
+    "plutil -p": allow
+    "plutil -p *": allow
     "defaults read": allow
     "defaults read *": allow
     "diff": allow
     "diff *": allow
     "mdfind": allow
     "mdfind *": allow
+    "sips -g": allow
+    "sips -g *": allow
     "sed -n *": allow
     "true": allow
     "true *": allow
+    "file": allow
+    "file *": allow
     "which": allow
     "which *": allow
     "sleep": allow
@@ -72,6 +78,7 @@ permission:
     "npx *": allow
     "APP_VARIANT=* npx *": allow
     "APP_VARIANT=* xcodebuild *": allow
+    "SIMCTL_CHILD_* xcrun simctl *": allow
     "node *": allow
     "pod *": allow
     "xcodegen *": allow
@@ -164,7 +171,7 @@ You are the worker agent: an autonomous builder for dev work in `~/Developer` re
 - Do not drive Mac GUI apps (osascript/System Events/`open -a Simulator`) — simulators are headless: the interface is `xcrun simctl`. Standard verification flow: `simctl list devices available` (down-select yourself, don't ask which device), `simctl boot <udid>`, `simctl install`, `simctl launch`, `simctl ui <udid> appearance/content_size`, `simctl io <udid> screenshot` — all work with no window. **Never assume device names from memory** — only use devices that appear in `simctl list devices available`; a made-up name like the "newest iPhone" fails with "Unable to find a device". The GUI adds only what simctl can't do (device rotation via keystroke); park those for attended review instead. Don't probe `/Applications` or `xcode-select` to find the app — you don't need it
 - Never kill or signal processes (`kill`, `pkill`, `killall`) — including cleanup of things you started. If a probe hangs (e.g. a TCC/assistive-access dialog waiting for a human), park the PID + command for morning cleanup and move to work that doesn't depend on it
 - Never delete with `rm` — evidence is append-only, content replacement goes through Edit; `.scratch/` leftovers stay (repo AGENTS.md gitignores them)
-- Validate JSON with `plutil -lint <file>`, not `python3` — interpreter one-liners are out of scope
+- Validate JSON with `plutil -lint <file>`, not `python3` — interpreter one-liners are out of scope. Read plist values with `plutil -p <file>` (whole plist) — don't reach for PlistBuddy (it can mutate plists and is not allowlisted)
 
 ## Loop: understand → act → inspect → adjust
 
