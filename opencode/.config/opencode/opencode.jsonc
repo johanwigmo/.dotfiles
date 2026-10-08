@@ -50,6 +50,17 @@
         ],
         "disabled": false,
         "codemode": false
+      },
+      // Xcode 27 MCP: project-file edits, builds, previews. Needs Xcode.app
+      // running with the project open + Intelligence toggle on (per machine).
+      // Tools error harmlessly when Xcode is closed.
+      "xcode": {
+        "type": "local",
+        "command": [
+          "xcrun",
+          "mcpbridge"
+        ],
+        "disabled": false
       }
     }
   }
