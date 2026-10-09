@@ -105,6 +105,25 @@ fi
 
 xargs=(-sdk iphonesimulator "${PRJ_ARGS[@]}" -scheme "$scheme")
 
+resolve_udid() {
+	if [[ "$dest" == *id=* ]]; then
+		udid="${dest##*id=}"
+	else
+		local sim_name="${dest##*name=}"; sim_name="${sim_name%%,OS=*}"
+		udid="$(xcrun simctl list devices | grep -F " $sim_name (" | head -1 | awk -F'[()]' '{print $2}' || true)"
+		[[ -n "$udid" ]] || die "no simulator named '$sim_name' — check xcrun simctl list devices"
+	fi
+}
+
+# Boot with a visible message; xcodebuild's own cold boot is slow AND silent
+# (xcbeautify eats the "Preparing for testing" lines), which reads as a hang.
+boot_if_needed() {
+	if ! xcrun simctl list devices | grep -F "($udid)" | grep -q "(Booted)"; then
+		echo "ios-build: booting simulator $udid" >&2
+		xcrun simctl boot "$udid"
+	fi
+}
+
 xcodepipe() {
 	if command -v xcbeautify >/dev/null 2>&1; then
 		xcodebuild "$@" 2>&1 | xcbeautify
@@ -112,6 +131,14 @@ xcodepipe() {
 		xcodebuild "$@"
 	fi
 }
+
+# Parallel test runs clone the destination and SHUT IT DOWN at teardown —
+# slow spin-up and it kills your pre-booted sim. Defaults to off; re-enable
+# with IOS_PARALLEL=1 (a -parallel-testing… passthrough always wins).
+if [[ "$action" == test && -z "${IOS_PARALLEL:-}" ]] &&
+	! grep -q -- "-parallel-testing" <(printf '%s\n' ${passthru+"${passthru[@]}"}); then
+	passthru+=(-parallel-testing-enabled NO)
+fi
 
 echo "ios-build: $action scheme=$scheme prj=${PRJ_ARGS[*]} dest=${dest:-generic simulator}" >&2
 
@@ -141,17 +168,8 @@ run)
 	[[ -n "${app_id:-}" ]] || die "no PRODUCT_BUNDLE_IDENTIFIER found"
 
 	# pin the target simulator to a UDID (unambiguous with several booted sims)
-	if [[ "$dest" == *id=* ]]; then
-		udid="${dest##*id=}"
-	else
-		sim_name="${dest##*name=}"; sim_name="${sim_name%%,OS=*}"
-		udid="$(xcrun simctl list devices | grep -F " $sim_name (" | head -1 | awk -F'[()]' '{print $2}' || true)"
-		[[ -n "$udid" ]] || die "no simulator named '$sim_name' — check xcrun simctl list devices"
-	fi
-	if ! xcrun simctl list devices | grep -F "($udid)" | grep -q "(Booted)"; then
-		echo "ios-build: booting simulator $udid" >&2
-		xcrun simctl boot "$udid"
-	fi
+	resolve_udid
+	boot_if_needed
 
 	xcodepipe "${xargs[@]}" -destination "$dest" build ${passthru+"${passthru[@]}"} \
 		&& echo "ios-build: ✔ built $scheme"
