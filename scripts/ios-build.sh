@@ -103,7 +103,10 @@ if [[ -z "$dest" && ("$action" == test || "$action" == run) ]]; then
 	dest="platform=iOS Simulator,id=$udid"
 fi
 
-xargs=(-sdk iphonesimulator "${PRJ_ARGS[@]}" -scheme "$scheme")
+# No -sdk flag: the destination decides the platform. An explicit -sdk
+# forces every target (incl. embedded watchOS targets, cf. ToGo) into the
+# same platform domain, where watchkit2 product types don't resolve.
+xargs=("${PRJ_ARGS[@]}" -scheme "$scheme")
 
 resolve_udid() {
 	if [[ "$dest" == *id=* ]]; then
@@ -155,7 +158,7 @@ test)
 
 run)
 	# resolve the .app product + bundle id from build settings
-	settings="$(xcodebuild "${xargs[@]}" -configuration Debug -showBuildSettings 2>/dev/null \
+	settings="$(xcodebuild "${xargs[@]}" -configuration Debug -destination "${dest:-generic/platform=iOS Simulator}" -showBuildSettings 2>/dev/null \
 		| awk -F' = ' '
 			{ k=$1; gsub(/[[:space:]]+/, "", k); v=$2
 			  if (k == "BUILT_PRODUCTS_DIR") dir = v
