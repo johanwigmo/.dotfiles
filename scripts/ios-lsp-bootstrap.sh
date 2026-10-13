@@ -10,6 +10,9 @@ set -euo pipefail
 # app-target completion or go-to-definition goes stale (new target members,
 # flipped build settings); any rebuild via ios-build.sh does the same.
 #
+# Any extra args pass to the final build, e.g. ios-lsp-bootstrap.sh
+# -skipPackagePluginValidation for projects with SPM build plugins.
+#
 # Scheme resolution mirrors ios-build.sh:
 #   1. environment: IOS_SCHEME
 #   2. .ios-build.env.local in project root   (machine-local, gitignore)
@@ -95,4 +98,7 @@ fi
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "ios-lsp-bootstrap: first build to populate DerivedData logs + index" >&2
-exec "$here/ios-build.sh" build
+# Args pass through to the final build — projects with SPM build plugins need
+# e.g. -skipPackagePluginValidation here, or that build fails (and a hook-run
+# build has no TTY for xcodebuild's plugin-approval prompt).
+exec "$here/ios-build.sh" build ${1+"$@"}
