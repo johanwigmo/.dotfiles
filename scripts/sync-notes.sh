@@ -51,6 +51,13 @@ trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM HUP
     rm -f "$IXL"
   fi
 
+  # Normalize work-tree permissions before staging. 600-mode files (legacy
+  # migration stamps carried in iCloud metadata) come down through FileProvider
+  # with a stuck access(W_OK) verdict, and nvim then opens them readonly on the
+  # laptop. Files -> 644, dirs -> rwxr-xr-x. Git tracks only the exec bit, so
+  # this creates no commit churn; idempotent on subsequent runs.
+  chmod -R u+rwX,go+rX "$WT"
+
   g add -A
   # guard: GitHub rejects the WHOLE push if any file exceeds 100 MB (GH001) —
   # catch staged offenders before committing, leave them staged for triage.
