@@ -21,6 +21,9 @@ herdr/.config/herdr/.plugins.lock
 herdr/.config/herdr/herdr.sock*
 herdr/.config/herdr/session-snapshots/
 
+# WIP plugin config - left untracked until ready
+nvim/.config/nvim/lua/plugins/bulletmark.lua
+
 # env secrets: authoritative copy lives in ~/.config/dotfiles.env, never in the repo
 # (bootstrap seeds fresh machines from the tracked dotfiles.env.example instead)
 config/dotfiles.env
