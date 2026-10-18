@@ -51,6 +51,9 @@ permission:
     "sips -g": allow
     "sips -g *": allow
     "sed -n *": allow
+    "sed *": allow
+    "sed -i*": deny
+    "sed --in-place*": deny
     "true": allow
     "true *": allow
     "file": allow
@@ -59,12 +62,21 @@ permission:
     "which *": allow
     "date": allow
     "date *": allow
+    "ps aux": allow
+    "pgrep": allow
+    "pgrep *": allow
+    "cut": allow
+    "cut *": allow
+    "tr": allow
+    "tr *": allow
     "sleep": allow
     "sleep *": allow
     "stat *": allow
     "wc *": allow
     "mkdir": allow
     "mkdir *": allow
+    "cd": allow
+    "cd *": allow
     "touch": allow
     "touch *": allow
     "cp": allow
@@ -87,8 +99,8 @@ permission:
     "pod *": allow
     "xcodegen *": allow
     "tuist *": allow
-    "~/.dotfiles/scripts/ios-build.sh": allow
-    "~/.dotfiles/scripts/ios-build.sh *": allow
+    "*dotfiles/scripts/ios-build.sh": allow
+    "*dotfiles/scripts/ios-build.sh *": allow
     "git status": allow
     "git status *": allow
     "git log": allow
@@ -171,17 +183,17 @@ The permission block above is enforced by the runtime but is not part of your co
 
 - If in doubt whether a command is allowlisted, assume it is not
 - Read-only questions (shape, counts, keys, diffs, line ranges) always have a toolbox route — reaching for an interpreter one-liner means you skipped that step. Interpreters are allowlisted as build tooling (`swift`, `node`), not scratch scripting: `python3 -c` / `node -e` are effectively out of scope unless a repo's AGENTS.md documents the exact command
-- Compose with toolbox pieces instead of reaching for new head-commands: JSON → `jq`, plists → `plutil -p` / `plutil -lint`, text → `rg` / `sed -n` / `sort` / `uniq`, images → `sips -g`
+- Compose with toolbox pieces instead of reaching for new head-commands: JSON → `jq`, plists → `plutil -p` / `plutil -lint`, text → `rg` / `sed` / `sort` / `uniq`, images → `sips -g`
 - If no toolbox route exists, park it in the report — `needed X; no allowlisted route; closest would be Y` — and continue with work that doesn't depend on it. Parked asks are the morning's allowlist-tuning input; a silent guess past one is a failure
 
 ### Toolbox (allowlisted — planning mirror of the permission block; the block is enforcement truth, this is the shortcut)
 
-- Read-only inspection: `ls` `cat` `head` `tail` `sort` `uniq` `comm` `diff` `file` `stat` `wc` `which` `date` `rg` `grep` `find` `mdfind`, `sed -n` (print only), `sips -g` (image metadata), `defaults read`
+- Read-only inspection: `ls` `cat` `head` `tail` `sort` `uniq` `comm` `diff` `file` `stat` `wc` `which` `date` `rg` `grep` `find` `mdfind`, `sed` (stdout filters — substitutions in pipes fine, never `-i`, which is hard-denied because it bypasses the Edit tool's logging), `cut` / `tr` (pure filters — use these instead of `awk`, which can execute commands and write files and is not allowlisted), `ps aux` (exact form — `ps e*` variants dump process environments and stay out of scope), `pgrep` (process existence), `sips -g` (image metadata), `defaults read`
 - Structured data: `jq` (JSON — counts, keys, shapes), `plutil -lint` (validate), `plutil -p` (read plist values)
 - iOS builds: `xcodebuild` `xcrun` `xcodeproj` `swift` `swiftc`, plus `~/.dotfiles/scripts/ios-build.sh` — the repos' documented build/test/run entry point (simulator-only, no signing)
 - JS & project tooling: `npm` `npx` `node` `pod` `xcodegen` `tuist` (incl. documented `APP_VARIANT=*` / `SIMCTL_CHILD_*` prefixes)
 - Git, local only: `status` `log` `diff` `show` `branch` `switch` `checkout` `add` `commit` `check-ignore` `stash` `init` `worktree`, plus `git -C <path>` for read-only status/log/diff on sibling checkouts
-- Repo-scoped file ops: `mkdir` `touch` `cp` `mv` — inside the repo only; content edits go through Edit, never `sed -i`, never `rm`
+- Repo-scoped file ops: `cd` (the session starts in the repo root — `cd &&` chains are habit leftovers, git runs straight), `mkdir` `touch` `cp` `mv` — inside the repo only; content edits go through Edit, never `sed -i`, never `rm`
 - Simulators: `xcrun simctl` headless flow (below)
 - Hard-denied, never attempt: push/fetch/pull/remote, `gh`, secret-shaped paths (`dotfiles.env`, `.ssh`, `tjing-env`), writes outside the repo except the vault scopes
 
