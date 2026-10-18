@@ -51,7 +51,7 @@ if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
 		echo "mas apps may need an App Store sign-in - re-run this script later"
 	fi
 fi
-if ! brew upgrade --cask; then
+if ! brew upgrade --cask --greedy; then
 	echo "Warning: some casks failed to upgrade (errors above)"
 	echo "Common cause: the app is running - quit it and re-run this script"
 fi
