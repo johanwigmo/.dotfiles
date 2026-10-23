@@ -51,6 +51,17 @@ if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
 		echo "mas apps may need an App Store sign-in - re-run this script later"
 	fi
 fi
+# --- Cask upgrades -----------------------------------------------------------
+# Homebrew cannot tell which casks need admin, so they are listed here.
+# Some casks need sudo to upgrade, and brew quits a running app BEFORE
+# asking for the password (2026-10: an unnoticed prompt aborted the
+# Tailscale upgrade and left the app offline). The password is asked up
+# front so it can't hide: grant sudo and everything upgrades; skip it and
+# SUDO_CASKS wait for the next run WITH sudo while the rest still upgrades.
+#
+# Maintenance: if a cask ever prompts mid-pass, add it to SUDO_CASKS.
+SUDO_CASKS=(tailscale-app)
+
 # Tailscale keeps this machine reachable (VNC/SSH). Homebrew's cask
 # upgrade quits running apps and doesn't relaunch them, so remember the
 # pre-upgrade state and restore it afterwards (agents/tailscale-watchdog.sh
@@ -60,9 +71,29 @@ if pgrep -xq Tailscale; then
 	TS_WAS_RUNNING=1
 fi
 
-if ! brew upgrade --cask --greedy; then
+cask_failure_note() {
 	echo "Warning: some casks failed to upgrade (errors above)"
 	echo "Common cause: the app is running - quit it and re-run this script"
+}
+
+if sudo -v; then
+	if ! brew upgrade --cask --greedy; then
+		cask_failure_note
+	fi
+else
+	echo "No sudo - skipping admin-needing casks: ${SUDO_CASKS[*]}"
+	# Cask tokens can't contain whitespace, so splitting $remaining is safe.
+	installed="$(brew list --cask || true)"
+	remaining="$(printf '%s\n' "$installed" | grep -vxF -f <(printf '%s\n' "${SUDO_CASKS[@]}") || true)"
+	if [[ -z "$installed" ]]; then
+		echo "No casks installed - nothing to upgrade"
+	elif [[ -n "$remaining" ]]; then
+		if ! brew upgrade --cask --greedy $remaining; then
+			cask_failure_note
+		fi
+	else
+		echo "All installed casks need sudo - nothing upgraded this run"
+	fi
 fi
 brew cleanup
 

@@ -34,6 +34,29 @@ The update sript will:
 - Re-stows configurations
 - Update Homebrew packages
 
+## scripts/ layout
+
+Scripts stay flat — every path here is load-bearing somewhere else
+(LaunchAgent plists, repo AGENTS.md files, opencode agent permission globs,
+vault skills), so subfolders mean churning all of those. Document by
+consumer class instead:
+
+| Class | Scripts | Referenced by |
+|---|---|---|
+| Setup/update flow | `bootstrap.sh`, `update.sh`, `install-launchagents.sh` | run by hand; bootstrap/update call the installer |
+| LaunchAgent payloads | `sync-notes.sh`, `tailscale-watchdog.sh` | plists in `LaunchAgents/` (hardwired absolute paths, gated per machine in `install-launchagents.sh`) |
+| Session tools | `toggl-weekly.sh` | vault skills + vault `AGENTS.md` |
+| Dev helpers | `ios-build.sh`, `ios-lsp-bootstrap.sh`, `dev-project-init.sh` | repo `AGENTS.md` files (ios-build is the repos' build/test/run entry point), opencode worker permissions |
+
+Rules:
+- Treat script paths as interfaces: before renaming or moving one, grep
+  this repo, the vault, and `~/Developer` repos for the old path.
+- New agent-class script (`*.plist` payload) goes in `LaunchAgents/` +
+  a `TAILSCALE_WATCHDOG`-style gate in `install-launchagents.sh`.
+- If the directory grows enough to want subfolders, split only launchd
+  payloads into `scripts/agents/` — keep hand-called scripts flat, those
+  are the short paths worth keeping.
+
 ## Manual Configuration
 
 Some setup require manual configuration after bootstrap. These are some of the things I need to adjust (not all, because I never remember what I have changed):
@@ -93,6 +116,17 @@ Nothing secret is committed to this repo.
     - Enable "Use scroll gesture with modifier keys to zoom"
 
 ## Troubleshooting
+
+### Tailscale offline after running update.sh
+
+Seen 2026-10: the `tailscale-app` cask needs admin rights, and brew quits
+the running app *before* asking for the password — an unnoticed prompt
+aborts the upgrade and leaves the app quit. `update.sh` therefore asks
+for the password up front and makes it optional: grant sudo and
+everything upgrades; skip it and the casks in `SUDO_CASKS` (update.sh)
+wait for the next run *with* sudo while everything else still upgrades.
+The relaunch after `brew cleanup` and the `tailscale-watchdog` agent on
+the mini are the backstops.
 
 ### Symlinks broken 
 
