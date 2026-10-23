@@ -22,11 +22,13 @@ return {
         sources = {
             default = { "lsp", "snippets", "path", "buffer" },
             per_filetype = {
-                -- notes vault markdown; wiki_links is unavailable outside $NOTES
-                markdown = { "wiki_links", "buffer", "path" },
+                -- notes vault markdown; wiki_links is unavailable outside $NOTES,
+                -- bulletmark only in bulletmark-attached buffers (+ / @ triggers)
+                markdown = { "wiki_links", "bulletmark", "buffer", "path" },
             },
             providers = {
                 wiki_links = { module = "notes.wiki_links" },
+                bulletmark = { module = "bulletmark.integrations.blink" },
             },
         },
     },

@@ -112,6 +112,43 @@ local function follow_link()
     end
 
     if not link then
+        -- No wiki-link: maybe a BulletMark project marker (+Name) under the
+        -- cursor — route to its project note in $TODO/projects/
+        local marker = nil
+        local from = 0
+        while true do
+            local m_s, m_e, name = line:find("%+([A-Za-z][A-Za-z0-9%-]*)", from + 1)
+            if not m_s then break end
+            -- marker boundary: '+' must not sit inside a word
+            local prev = m_s > 1 and line:sub(m_s - 1, m_s - 1) or ""
+            if col >= m_s and col <= m_e and (prev == "" or prev:match("%s")) then
+                marker = name
+                break
+            end
+            from = m_e
+        end
+
+        if marker then
+            if todo == "" then
+                vim.notify("notes: $TODO is not set", vim.log.levels.ERROR)
+                return
+            end
+            local kebab = marker:lower()
+            local filepath = todo .. "projects/project-" .. kebab .. ".md"
+            if vim.fn.filereadable(filepath) == 1 then
+                vim.cmd("edit " .. vim.fn.fnameescape(filepath))
+            else
+                local answer = vim.fn.input(string.format(
+                    "'+%s' has no project note. Create projects/project-%s.md? (y/n) ",
+                    marker, kebab))
+                if answer == "y" then
+                    vim.fn.mkdir(vim.fs.dirname(filepath), "p")
+                    vim.cmd("edit " .. vim.fn.fnameescape(filepath))
+                end
+            end
+            return
+        end
+
         vim.notify("notes: no [[wiki-link]] under cursor", vim.log.levels.WARN)
         return
     end
