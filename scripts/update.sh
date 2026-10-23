@@ -51,11 +51,25 @@ if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
 		echo "mas apps may need an App Store sign-in - re-run this script later"
 	fi
 fi
+# Tailscale keeps this machine reachable (VNC/SSH). Homebrew's cask
+# upgrade quits running apps and doesn't relaunch them, so remember the
+# pre-upgrade state and restore it afterwards (agents/tailscale-watchdog.sh
+# is the safety net if this is missed).
+TS_WAS_RUNNING=0
+if pgrep -xq Tailscale; then
+	TS_WAS_RUNNING=1
+fi
+
 if ! brew upgrade --cask --greedy; then
 	echo "Warning: some casks failed to upgrade (errors above)"
 	echo "Common cause: the app is running - quit it and re-run this script"
 fi
 brew cleanup
+
+if [[ "$TS_WAS_RUNNING" == "1" && ! "$(pgrep -x Tailscale)" ]]; then
+	echo "Relaunching Tailscale (quit by cask upgrade)..."
+	open -ga Tailscale
+fi
 
 echo "Update complete!"
 

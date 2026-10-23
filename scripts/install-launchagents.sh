@@ -48,3 +48,9 @@ if [[ "${NOTES_SYNC_HOST:-0}" == "1" ]]; then
 else
 	remove_agent "dev.wigmo.notes-sync.plist"
 fi
+
+if [[ "${TAILSCALE_WATCHDOG:-0}" == "1" ]]; then
+	install_agent "dev.wigmo.tailscale-watchdog.plist"
+else
+	remove_agent "dev.wigmo.tailscale-watchdog.plist"
+fi
