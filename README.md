@@ -128,6 +128,16 @@ wait for the next run *with* sudo while everything else still upgrades.
 The relaunch after `brew cleanup` and the `tailscale-watchdog` agent on
 the mini are the backstops.
 
+Also seen 2026-10-31: `--greedy` "upgraded" Tailscale on every run. The
+cask is `auto_updates`, and Tailscale's own updater runs ahead of the
+cask version, so brew saw a mismatch each time and (down)"upgraded" it,
+quitting the app. update.sh now lists it in `SKIP_CASKS` and never
+greedy-upgrades it; the in-app updater + watchdog own its lifecycle.
+Recovery hatches if the mini ever goes dark: LAN SSH via
+`user@wigmo-mini.local` (or its LAN IP), then wait — the watchdog
+fires every 5 min (`/tmp/tailscale-watchdog.log` logs only when it acts).
+It requires `TAILSCALE_WATCHDOG=1` in the mini's `~/.config/dotfiles.env`.
+
 ### Symlinks broken 
 
 Re-tow the configuration: 

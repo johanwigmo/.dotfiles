@@ -62,9 +62,30 @@ fi
 # Maintenance: if a cask ever prompts mid-pass, add it to SUDO_CASKS.
 SUDO_CASKS=(tailscale-app)
 
+# Casks to never greedy-upgrade. Tailscale self-updates (auto_updates cask):
+# its in-app updater runs ahead of the cask version, so `--greedy` sees a
+# mismatch every run and "upgrades" (actually downgrades) the app - quitting
+# it and taking the mini offline (2026-10-31: update.sh ran twice an hour
+# apart and knocked Tailscale over both times). Its own updater + the
+# watchdog own the lifecycle; brew only installs it initially.
+SKIP_CASKS=(tailscale-app)
+
+# Installed casks minus the exclusion lists - safe to pass to brew upgrade.
+# Extra args (e.g. "${SUDO_CASKS[@]}") are excluded in addition to SKIP_CASKS.
+casks_to_upgrade() {
+	local extra="$*"
+	local installed
+	installed="$(brew list --cask || true)"
+	if [[ -z "$installed" ]]; then
+		return
+	fi
+	local exclude="${SKIP_CASKS[*]}${extra:+ $extra}"
+	printf '%s\n' "$installed" | grep -vxF -f <(printf '%s\n' $exclude) || true
+}
+
 # Tailscale keeps this machine reachable (VNC/SSH). Homebrew's cask
 # upgrade quits running apps and doesn't relaunch them, so remember the
-# pre-upgrade state and restore it afterwards (agents/tailscale-watchdog.sh
+# pre-upgrade state and restore it afterwards (scripts/tailscale-watchdog.sh
 # is the safety net if this is missed).
 TS_WAS_RUNNING=0
 if pgrep -xq Tailscale; then
@@ -77,22 +98,21 @@ cask_failure_note() {
 }
 
 if sudo -v; then
-	if ! brew upgrade --cask --greedy; then
+	# SUDO_CASKS are upgraded here (sudo is available) - only SKIP_CASKS excluded.
+	remaining="$(casks_to_upgrade)"
+	if [[ -z "$remaining" ]]; then
+		echo "No upgradeable casks (skipping: ${SKIP_CASKS[*]})"
+	elif ! brew upgrade --cask --greedy $remaining; then
 		cask_failure_note
 	fi
 else
 	echo "No sudo - skipping admin-needing casks: ${SUDO_CASKS[*]}"
 	# Cask tokens can't contain whitespace, so splitting $remaining is safe.
-	installed="$(brew list --cask || true)"
-	remaining="$(printf '%s\n' "$installed" | grep -vxF -f <(printf '%s\n' "${SUDO_CASKS[@]}") || true)"
-	if [[ -z "$installed" ]]; then
-		echo "No casks installed - nothing to upgrade"
-	elif [[ -n "$remaining" ]]; then
-		if ! brew upgrade --cask --greedy $remaining; then
-			cask_failure_note
-		fi
-	else
-		echo "All installed casks need sudo - nothing upgraded this run"
+	remaining="$(casks_to_upgrade "${SUDO_CASKS[@]}")"
+	if [[ -z "$remaining" ]]; then
+		echo "No casks upgradeable this run - nothing upgraded"
+	elif ! brew upgrade --cask --greedy $remaining; then
+		cask_failure_note
 	fi
 fi
 brew cleanup
