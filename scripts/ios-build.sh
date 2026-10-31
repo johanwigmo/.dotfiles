@@ -5,30 +5,41 @@ set -euo pipefail
 # Simulator-only: no codesigning, SSH-safe. Device deploys stay in Xcode.
 #
 # Usage:
-#   ios-build.sh [build]                build for the simulator (default action)
-#   ios-build.sh test [xcodebuild ...]  test; -only-testing:/-skip-testing: pass through
-#   ios-build.sh run [xcodebuild ...]   build + simctl install + launch on a simulator
+#   ios-build.sh [build]                   build for the simulator (default action)
+#   ios-build.sh test [xcodebuild ...]     test; -only-testing:/-skip-testing: pass through
+#   ios-build.sh run [xcodebuild ...]      build + simctl install + launch on a simulator
+#   ios-build.sh watch [build|test|run] …  same trio for the watch target
+#                                          (WATCH_SCHEME required in practice — the
+#                                          default-basename scheme is the iOS one)
 #   ios-build.sh -h
 #
 # Any extra args are forwarded to xcodebuild/swift (e.g. -configuration Release).
+# A leading -flag instead of an action (e.g. `ios-build.sh -configuration Release`)
+# is a build with those flags.
 #
 # Config, resolved per project root (walks up from cwd for a project/workspace/
-# Package.swift). First match wins:
-#   1. environment: IOS_SCHEME, IOS_DESTINATION
+# Package.swift). Per key, first match wins:
+#   1. environment: IOS_SCHEME, IOS_DESTINATION, WATCH_SCHEME, WATCH_DESTINATION
+#      (outright — an exported value beats the same key in both files below)
 #   2. .ios-build.env.local in project root   (machine-local, gitignore)
 #   3. .ios-build.env in project root         (committed)
 #
 #   IOS_SCHEME=chores
 #   IOS_DESTINATION='platform=iOS Simulator,name=iPhone 18 Pro'
+#   WATCH_SCHEME='Tjing Watch App'
+#   WATCH_DESTINATION='platform=watchOS Simulator,name=Apple Watch Series 10 (46mm)'
 #
-# Defaults: scheme = basename of the project/workspace; destination =
-# generic simulator for build, single booted iPhone for test/run.
-# SPM-only roots (Package.swift, no .xcodeproj) map build/test to swift.
+# Defaults: scheme = basename of the project/workspace, same for watch; dest =
+# generic simulator (iOS/watchOS) for build, single booted iPhone/Watch for
+# test/run. SPM-only roots (Package.swift, no .xcodeproj) map build/test to swift.
 
 usage() { sed -n '/^# iOS CLI/,/^# SPM/p' "$0" | sed 's/^# \{0,1\}//'; }
 
 die() { echo "ios-build: $*" >&2; exit 1; }
 
+# --- args ---------------------------------------------------------------------
+
+selector=ios # watch switches scheme/destination vars, sim family, generic dest
 action="${1:-build}"
 if [[ "$action" == "-h" || "$action" == "--help" ]]; then
 	usage
@@ -36,13 +47,34 @@ if [[ "$action" == "-h" || "$action" == "--help" ]]; then
 fi
 
 passthru=()
-if [[ "$action" == build || "$action" == test || "$action" == run ]]; then
-	shift 2>/dev/null || true
+case "$action" in
+watch)
+	selector=watch
+	shift
+	if [[ $# -ge 1 && "$1" != -* ]]; then
+		action="$1"
+		shift
+	else
+		action=build # `watch -flag …` = watch build with flags
+	fi
 	passthru=("$@")
-else
+	;;
+build | test | run)
+	shift
+	passthru=("$@")
+	;;
+-*)
 	passthru=("$@") # e.g. plain `ios-build.sh -configuration Release`
 	action=build
-fi
+	;;
+*)
+	{
+		echo "ios-build: unknown action '$action' (expected build/test/run, an optional leading 'watch', or xcodebuild flags)"
+		usage
+	} >&2
+	exit 1
+	;;
+esac
 
 # --- project root ------------------------------------------------------------
 
@@ -66,6 +98,9 @@ shopt -u nullglob
 cd "$ROOT"
 
 if [[ -n "${pkgs[0]:-}" ]] && [[ -z "${projects[0]:-}" && -z "${workspaces[0]:-}" ]]; then
+	if [[ "$selector" == watch ]]; then
+		die "SPM package ($ROOT): watch selector needs an Xcode project — use swift build/test"
+	fi
 	case "$action" in
 	run) die "SPM package ($ROOT): no app to install — use swift run" ;;
 	test) exec swift test ${passthru+"${passthru[@]}"} ;;
@@ -85,22 +120,47 @@ else
 	die "multiple .xcodeproj in $ROOT and no .xcworkspace — point IOS_SCHEME/args at one"
 fi
 
-# --- config ------------------------------------------------------------------
+# --- config -------------------------------------------------------------------
 
+# True env > .local > .env precedence: sourcing below clobbers the process env,
+# so snapshot it first. Sourcing already merges .local over .env (later source
+# wins per key); these four lines only restore an exported value outright.
+env_scheme="${IOS_SCHEME:-}"
+env_dest="${IOS_DESTINATION:-}"
+env_watch_scheme="${WATCH_SCHEME:-}"
+env_watch_dest="${WATCH_DESTINATION:-}"
 [[ -f "$ROOT/.ios-build.env" ]] && source "$ROOT/.ios-build.env"
 [[ -f "$ROOT/.ios-build.env.local" ]] && source "$ROOT/.ios-build.env.local"
-scheme="${IOS_SCHEME:-$default_scheme}"
+ios_scheme="${env_scheme:-${IOS_SCHEME:-}}"
+ios_dest="${env_dest:-${IOS_DESTINATION:-}}"
+watch_scheme="${env_watch_scheme:-${WATCH_SCHEME:-}}"
+watch_dest="${env_watch_dest:-${WATCH_DESTINATION:-}}"
 
-first_booted_iphone() {
+if [[ "$selector" == watch ]]; then
+	scheme="${watch_scheme:-$default_scheme}"
+	dest="$watch_dest"
+	generic_dest="generic/platform=watchOS Simulator"
+else
+	scheme="${ios_scheme:-$default_scheme}"
+	dest="$ios_dest"
+	generic_dest="generic/platform=iOS Simulator"
+fi
+
+first_booted() { # $1 = device-name substring (iPhone | Watch)
 	xcrun simctl list devices booted 2>/dev/null \
-		| sed -n 's/.*iPhone.*(\([0-9A-F-]\{36\}\)).*(Booted).*/\1/p' | head -1
+		| sed -n "s/.*$1.*(\([0-9A-F-]\{36\}\)).*(Booted).*/\1/p" | head -1
 }
 
-dest="$IOS_DESTINATION"
 if [[ -z "$dest" && ("$action" == test || "$action" == run) ]]; then
-	udid="$(first_booted_iphone)"
-	[[ -z "$udid" ]] && die "no IOS_DESTINATION set and no booted iPhone — set it in $ROOT/.ios-build.env (e.g. 'platform=iOS Simulator,name=iPhone 18 Pro') or boot one"
-	dest="platform=iOS Simulator,id=$udid"
+	if [[ "$selector" == watch ]]; then
+		udid="$(first_booted Watch)"
+		[[ -z "$udid" ]] && die "no WATCH_DESTINATION set and no booted Watch — set it in $ROOT/.ios-build.env(.local) (e.g. 'platform=watchOS Simulator,name=Apple Watch Series 10 (46mm)') or boot one"
+		dest="platform=watchOS Simulator,id=$udid"
+	else
+		udid="$(first_booted iPhone)"
+		[[ -z "$udid" ]] && die "no IOS_DESTINATION set and no booted iPhone — set it in $ROOT/.ios-build.env(.local) (e.g. 'platform=iOS Simulator,name=iPhone 18 Pro') or boot one"
+		dest="platform=iOS Simulator,id=$udid"
+	fi
 fi
 
 # No -sdk flag: the destination decides the platform. An explicit -sdk
@@ -143,11 +203,15 @@ if [[ "$action" == test && -z "${IOS_PARALLEL:-}" ]] &&
 	passthru+=(-parallel-testing-enabled NO)
 fi
 
-echo "ios-build: $action scheme=$scheme prj=${PRJ_ARGS[*]} dest=${dest:-generic simulator}" >&2
+label="$action"
+if [[ "$selector" == watch ]]; then
+	label="watch:$action"
+fi
+echo "ios-build: $label scheme=$scheme prj=${PRJ_ARGS[*]} dest=${dest:-$generic_dest}" >&2
 
 case "$action" in
 build)
-	xcodepipe "${xargs[@]}" -destination "${dest:-generic/platform=iOS Simulator}" build ${passthru+"${passthru[@]}"} \
+	xcodepipe "${xargs[@]}" -destination "${dest:-$generic_dest}" build ${passthru+"${passthru[@]}"} \
 		&& echo "ios-build: ✔ built $scheme"
 	;;
 
@@ -158,7 +222,7 @@ test)
 
 run)
 	# resolve the .app product + bundle id from build settings
-	settings="$(xcodebuild "${xargs[@]}" -configuration Debug -destination "${dest:-generic/platform=iOS Simulator}" -showBuildSettings 2>/dev/null \
+	settings="$(xcodebuild "${xargs[@]}" -configuration Debug -destination "${dest:-$generic_dest}" -showBuildSettings 2>/dev/null \
 		| awk -F' = ' '
 			{ k=$1; gsub(/[[:space:]]+/, "", k); v=$2
 			  if (k == "BUILT_PRODUCTS_DIR") dir = v

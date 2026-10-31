@@ -13,8 +13,8 @@ set -euo pipefail
 # Any extra args pass to the final build, e.g. ios-lsp-bootstrap.sh
 # -skipPackagePluginValidation for projects with SPM build plugins.
 #
-# Scheme resolution mirrors ios-build.sh:
-#   1. environment: IOS_SCHEME
+# Scheme resolution mirrors ios-build.sh (env > .local > .env > basename):
+#   1. environment: IOS_SCHEME (outright — an exported value beats both files)
 #   2. .ios-build.env.local in project root   (machine-local, gitignore)
 #   3. .ios-build.env in project root         (committed)
 #   4. basename of the project/workspace
@@ -73,9 +73,12 @@ fi
 
 # --- scheme -------------------------------------------------------------------
 
+# Sourcing clobbers the process env (same fix as ios-build.sh): snapshot first,
+# restore an exported IOS_SCHEME outright over whatever the files define.
+env_scheme="${IOS_SCHEME:-}"
 [[ -f "$ROOT/.ios-build.env" ]] && source "$ROOT/.ios-build.env"
 [[ -f "$ROOT/.ios-build.env.local" ]] && source "$ROOT/.ios-build.env.local"
-scheme="${IOS_SCHEME:-$default_scheme}"
+scheme="${env_scheme:-${IOS_SCHEME:-$default_scheme}}"
 
 # --- configure ----------------------------------------------------------------
 
