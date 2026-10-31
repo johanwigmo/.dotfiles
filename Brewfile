@@ -78,6 +78,7 @@ brew "xcbeautify"
 ###########
 
 brew "hugo"
+brew "go" # Hugo module downloads shell out to go
 
 ############
 # GUI Apps #
