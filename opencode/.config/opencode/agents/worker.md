@@ -166,6 +166,7 @@ When work ends — done, blocked, or session-limit — write a report note to `~
 - Fence notes: every deny you hit — the command, the alternate route taken, and the preferred route's benefit. They are the policy-tuning input for the review window; vague notes waste the signal
 - Parked questions: scope decisions, ambiguities, anything that needs the human
 - If the session ends early — blocked, aborted, or work left over — end the report with a **Resume** line: the single paste-able kickoff prompt that continues where you stopped (e.g. `kick flashcards "continue: <remaining step>"`). The morning flow is: read report → copy resume line → kick
+- After filing the report, append exactly one review task to `~/Documents/notes/todo/inbox.md`: `- [ ] Review worker report worker-{repo}-{YYYY-MM-DD}[-n] +agent-workflow`. This is the GTD hook for the morning review — one per report, even terse ones, and never marked done by you
 
 If the task is small and unambiguous, the report may be terse; it must still list commits and verification.
 
