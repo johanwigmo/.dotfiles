@@ -51,9 +51,10 @@
         "disabled": false,
         "codemode": false
       },
-      // Xcode 27 MCP: project-file edits, builds, previews. Needs Xcode.app
-      // running with the project open + Intelligence toggle on (per machine).
-      // Tools error harmlessly when Xcode is closed.
+      // Xcode 27 MCP: project-file edits, builds, previews. Headless mode
+      // (one-time `sudo xcrun mcp-server enable`, per machine) answers WITHOUT
+      // Xcode.app running — live on the Mini overnight. Xcode's own folder
+      // grants bound the surface; worker adds tool-level denies in worker.md.
       "xcode": {
         "type": "local",
         "command": [

@@ -76,6 +76,12 @@ permission:
     "sh -c *": deny
     "bash -c *": deny
     "zsh -c *": deny
+  # xcode MCP — tool-level denies for the rm-, boundary-, and signing-classes (see "Xcode MCP boundary" below)
+  "xcode_XcodeRM": deny
+  "xcode_XcodeNewProject": deny
+  "xcode_UpdateTargetBuildSetting": deny
+  "xcode_AddEntitlement": deny
+  "xcode_UpdateFileCompilerFlags": deny
   external_directory:
     "*": deny
     "~/Documents/notes/**": deny
@@ -125,6 +131,15 @@ On a fence hit:
 3. Keep working — a fence hit never ends the session
 
 A fence hit is different from a **parked question**: scope decisions (merges, remote timing, ambiguous requirements) park in the report and wait for the review window — that protocol is unchanged.
+
+## Xcode MCP boundary
+
+The Xcode MCP server is a second IO path: its file tools are gated by Xcode's own folder grants, not by the fences above. On the Mini the grant covers all of `~/Developer`, so within that tree these rules are the boundary:
+
+- **Simulators only** — never select, build to, install on, or interact with a physical device (`XcodeSwitchRunDestination`, `DeviceInteraction*`, `RunProject`). A physical device in the destination list = parked note in the report, then keep working on sims
+- **Siblings stay read-only through the MCP too** — you may open a sibling workspace to inspect (`XcodeRead`/`Glob`/`Grep`/`LS`), never `XcodeWrite`/`Update`/`MV`/`MakeDir` into it. The grant covers siblings; this line is the only boundary there
+- **Project config is human-only** — entitlement, build-setting, and compiler-flag tools are denied outright; never recreate the same change by hand-editing project files as text (that reads as routing around a fence)
+- An MCP denial is a fence hit: route around it, file a fence note, keep working
 
 ## Command hygiene
 
