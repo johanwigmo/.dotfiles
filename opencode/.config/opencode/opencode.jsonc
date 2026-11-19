@@ -2,43 +2,53 @@
   "$schema": "https://opencode.ai/config.json",
   // Primary model is picked per machine in the TUI (remembered locally, not synced).
   // This machine: berget/zai-org/GLM-5.3-Flash; client machine: OpenAI/Anthropic/Google keys.
-  // Kimi-K3 stays an on-demand pick — quota-heavy, rate-limited past 50%.
-  "small_model": "opencode/nemotron-3.5-lightning-free",
+  // Kimi-K3.1 stays an on-demand pick — quota-heavy, rate-limited past 50%.
   "default_agent": "dev",
-  "permission": {
-    "read": "allow",
-    "glob": "allow",
-    "grep": "allow",
-    "list": "allow",
-    "skill": "allow",
-    "webfetch": "allow",
-    "websearch": "allow",
-    "question": "allow",
-    "todowrite": "allow",
-    "task": "ask",
-    "edit": "ask",
-    "bash": {
-      "*": "ask",
-      "ls": "allow",
-      "ls *": "allow",
-      "find": "allow",
-      "find *": "allow",
-      "rg": "allow",
-      "rg *": "allow",
-      "git status": "allow",
-      "git status *": "allow",
-      "git log": "allow",
-      "git log *": "allow",
-      "git diff": "allow",
-      "git diff *": "allow"
+  // v2 dropped `small_model`; background tasks are built-in agents, pinned here.
+  // Compaction deliberately left on the session model — a tiny model shrinks
+  // the compaction input budget.
+  // Berget renamed the backend id to Kimi-K3.1-Pro (2026-11-02); the models.dev
+  // catalog still lists stale Kimi-K3 ids, so define it manually. Limits copied
+  // from the K3 catalog entry — berget's API reports no context window.
+  // Pricing: €3 in / €10 out / €0.90 cached per M tokens (cheaper than K3's listing).
+  "providers": {
+    "berget": {
+      "models": {
+        // Stale catalog id — berget renamed it to Kimi-K3.1-Pro; requests fail.
+        "moonshotai/Kimi-K3": { "disabled": true },
+        "moonshotai/Kimi-K3.1-Pro": {
+          "name": "Kimi K3.1 Pro",
+          "limit": { "context": 327680, "output": 32768 },
+        },
+      },
     },
-    "external_directory": {
-      "~/Documents/notes/**": "allow"
-    }
   },
-  "plugin": [
-    "@bergetai/opencode-auth@latest"
+  "agents": {
+    "title": { "model": "opencode/nemotron-3.5-lightning-free" },
+    "summary": { "model": "opencode/nemotron-3.5-lightning-free" },
+  },
+  // Ordered rules, last match wins. Trailing " *" also matches the bare command.
+  // v2 base policy already allows read/glob/grep/skill/webfetch/websearch/question
+  // (with .env read prompts); only deviations are listed here.
+  "permissions": [
+    { "action": "shell", "resource": "*", "effect": "ask" },
+    { "action": "shell", "resource": "ls *", "effect": "allow" },
+    { "action": "shell", "resource": "find *", "effect": "allow" },
+    { "action": "shell", "resource": "rg *", "effect": "allow" },
+    { "action": "shell", "resource": "git status *", "effect": "allow" },
+    { "action": "shell", "resource": "git log *", "effect": "allow" },
+    { "action": "shell", "resource": "git diff *", "effect": "allow" },
+    { "action": "edit", "resource": "*", "effect": "ask" },
+    { "action": "subagent", "resource": "*", "effect": "ask" },
+    // Vault readable from dev sessions; anything else outside the active
+    // location prompts (same net behavior as v1's external_directory map).
+    { "action": "external_directory", "resource": "*", "effect": "ask" },
+    { "action": "external_directory", "resource": "~/Documents/notes/*", "effect": "allow" },
   ],
+  // todowrite became an opt-in tool in v2; kept on for dev/worker sessions.
+  "experimental": {
+    "todo": true,
+  },
   "mcp": {
     "servers": {
       "codegraph": {
@@ -64,5 +74,6 @@
         "disabled": false
       }
     }
-  }
+  },
+  "model": "berget/zai-org/GLM-5.3-Flash"
 }
