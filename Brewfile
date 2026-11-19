@@ -59,7 +59,7 @@ brew "curl"
 # Documentation #
 #################
 
-brew "tldr"
+brew "tealdeer"
 
 ##############
 # Mobile Dev #
@@ -85,7 +85,7 @@ brew "go" # Hugo module downloads shell out to go
 ############
 
 # AI
-brew "anomalyco/tap/opencode"
+brew "anomalyco/tap/opencode-v2"
 
 # Development
 cask "ghostty"
