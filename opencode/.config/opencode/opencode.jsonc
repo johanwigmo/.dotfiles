@@ -75,5 +75,10 @@
       }
     }
   },
+  // Required: drives berget OAuth refresh (15-min access token) via V2's
+  // credential bridge. Cached in ~/.cache/opencode/npm, NOT ./node_modules.
+  "plugin": [
+    "@bergetai/opencode-auth@latest"
+  ],
   "model": "berget/zai-org/GLM-5.3-Flash"
 }
