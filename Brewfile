@@ -86,6 +86,7 @@ brew "go" # Hugo module downloads shell out to go
 
 # AI
 brew "anomalyco/tap/opencode-v2"
+cask "claude"
 
 # Development
 cask "ghostty"

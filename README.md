@@ -33,6 +33,7 @@ The update sript will:
 - Pull latest dotfiles from git
 - Re-stows configurations
 - Update Homebrew packages
+- Uninstall packages no longer in the Brewfile (hand-installed keep-listed ones survive)
 
 ## scripts/ layout
 

@@ -51,6 +51,35 @@ if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
 		echo "mas apps may need an App Store sign-in - re-run this script later"
 	fi
 fi
+# --- Package removals --------------------------------------------------------
+# brew bundle only installs missing entries, so packages removed from the
+# (pulled) Brewfile would stay installed forever - chatgpt/maestral survived
+# their 2026-09 removal while the cask pass below kept greedily upgrading
+# them. Forced `brew bundle cleanup` (--force = non-interactive, the reason
+# an earlier cleanup pass was dropped in b64fd19) makes the tracked Brewfile
+# authoritative on every update.
+# The keep-list is appended to a temp copy, never tracked: hand-installed
+# things intentionally absent from the Brewfile survive cleanup - mas apps
+# that must not auto-install on fresh machines (Xcode, see README, plus
+# iWork) and manual dev tools (cocoapods).
+CLEANUP_BREWFILE="$(mktemp)"
+cat "$HOME/.dotfiles/Brewfile" >"$CLEANUP_BREWFILE"
+cat >>"$CLEANUP_BREWFILE" <<'EOF'
+
+# Keep-list: installed by hand, intentionally absent from the tracked Brewfile
+mas "Xcode", id: 497799835
+mas "Keynote", id: 361285480
+mas "Numbers", id: 361304891
+mas "Pages", id: 361309726
+brew "cocoapods"
+EOF
+
+echo "Removing packages no longer in the Brewfile..."
+brew bundle cleanup --file="$CLEANUP_BREWFILE" --force \
+	|| echo "Warning: brew bundle cleanup failed - extras kept"
+brew autoremove || echo "Warning: brew autoremove failed"
+rm -f "$CLEANUP_BREWFILE"
+
 # --- Cask upgrades -----------------------------------------------------------
 # Homebrew cannot tell which casks need admin, so they are listed here.
 # Some casks need sudo to upgrade, and brew quits a running app BEFORE
@@ -62,13 +91,13 @@ fi
 # Maintenance: if a cask ever prompts mid-pass, add it to SUDO_CASKS.
 SUDO_CASKS=(tailscale-app)
 
-# Casks to never greedy-upgrade. Tailscale self-updates (auto_updates cask):
-# its in-app updater runs ahead of the cask version, so `--greedy` sees a
-# mismatch every run and "upgrades" (actually downgrades) the app - quitting
-# it and taking the mini offline (2026-10-31: update.sh ran twice an hour
-# apart and knocked Tailscale over both times). Its own updater + the
-# watchdog own the lifecycle; brew only installs it initially.
-SKIP_CASKS=(tailscale-app)
+# Casks to never greedy-upgrade. Auto-updating casks (tailscale-app, claude —
+# both declare `auto_updates`): their in-app updater runs ahead of the cask
+# version, so `--greedy` sees a mismatch every run and "upgrades" (actually
+# downgrades) the app - quitting it in the process (2026-10-31: update.sh ran
+# twice an hour apart and knocked Tailscale over both times). Their own
+# updater owns the lifecycle; brew only installs them initially.
+SKIP_CASKS=(tailscale-app claude)
 
 # Installed casks minus the exclusion lists - safe to pass to brew upgrade.
 # Extra args (e.g. "${SUDO_CASKS[@]}") are excluded in addition to SKIP_CASKS.
