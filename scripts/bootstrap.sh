@@ -43,6 +43,18 @@ if command -v mas &>/dev/null && ! mas account &>/dev/null; then
 	echo "Sign in via the App Store app, then re-run this script"
 fi
 
+# Homebrew's tap-trust: brew refuses to install formulae from a tapped
+# tap that isn't explicitly trusted (2026-11: `brew bundle` failed the
+# anomalyco/tap/opencode-v2 entry with "untrusted tap"). Tapping here so the
+# trust applies even on the very first run, before `brew bundle` processes
+# the Brewfile's tap entry; trust is one-time per machine, so update.sh
+# doesn't need this.
+brew tap anomalyco/tap 2>/dev/null || true
+if ! brew trust anomalyco/tap 2>/dev/null; then
+	echo "Warning: could not trust anomalyco/tap (older brew?) -"
+	echo "the anomalyco/tap/opencode-v2 install may fail until you run: brew trust anomalyco/tap"
+fi
+
 echo "Running Brew bundle..."
 if ! brew bundle --file="$HOME/.dotfiles/Brewfile"; then
 	echo "Warning: some Brewfile items failed to install"
